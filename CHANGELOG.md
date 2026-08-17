@@ -22,6 +22,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - (**Download**) Group downloads by source
 - (**Download**) Add series bulk actions
 - (**Download**) Make downloads cancelable outside the download queue page
+- (**Download**) Only download one entry per chapter when multiple scanlators published the same chapter
 - (**Global search**) Show count of entries in the library of each source
 
 ### Fixed

@@ -302,15 +302,16 @@ export class Mangas {
                             return [];
                         }
 
+                        // only download a single entry per chapter number in case multiple scanlators
+                        // published the same chapter
+                        const uniqueMangaChapters = Chapters.removeDuplicates(mangaChapters[0], mangaChapters);
+
                         const shouldDownloadAll = actualSize === undefined;
                         if (shouldDownloadAll) {
-                            return mangaChapters;
+                            return uniqueMangaChapters;
                         }
 
-                        const uniqueMangaChapters = Chapters.removeDuplicates(mangaChapters[0], mangaChapters);
-                        const uniqueMangaChaptersToDownload = uniqueMangaChapters.slice(0, actualSize);
-
-                        return Chapters.addDuplicates(uniqueMangaChaptersToDownload, mangaChapters);
+                        return uniqueMangaChapters.slice(0, actualSize);
                     })
                     .filter(Chapters.isDownloadable);
 
