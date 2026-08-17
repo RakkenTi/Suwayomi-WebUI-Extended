@@ -43,6 +43,7 @@ type MangaCardBaseProps = Pick<MangaTypeGql, 'id' | 'title' | 'sourceId' | 'inLi
 export type MangaIdInfo = Pick<MangaTypeGql, 'id'>;
 export type MangaChapterCountInfo = { chapters: Pick<MangaTypeGql['chapters'], 'totalCount'> };
 export type MangaHighestChapterNumberInfo = { highestNumberedChapter?: (ChapterIdInfo & ChapterNumberInfo) | null };
+export type MangaLatestReadChapterNumberInfo = { latestReadChapter?: (ChapterIdInfo & ChapterNumberInfo) | null };
 export type MangaInLibraryInfo = Pick<MangaTypeGql, 'inLibrary' | 'inLibraryAt'>;
 export type MangaDownloadInfo = Pick<MangaTypeGql, 'downloadCount'> & MangaChapterCountInfo;
 export type MangaUnreadInfo = Pick<MangaTypeGql, 'unreadCount'> & MangaChapterCountInfo;

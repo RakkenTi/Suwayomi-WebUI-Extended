@@ -495,12 +495,20 @@ export class Chapters {
         >;
     }
 
-    static getMissingCount<Chapter extends ChapterNumberInfo>(chapters: Chapter[]): number {
-        const sortedChapters = chapters.toSorted((a, b) => a.chapterNumber - b.chapterNumber);
+    static getMissingCount<Chapter extends ChapterNumberInfo>(
+        chapters: Chapter[],
+        aboveChapterNumber?: number,
+    ): number {
+        const relevantChapters =
+            aboveChapterNumber === undefined
+                ? chapters
+                : chapters.filter(({ chapterNumber }) => chapterNumber > aboveChapterNumber);
+        const sortedChapters = relevantChapters.toSorted((a, b) => a.chapterNumber - b.chapterNumber);
 
         return sortedChapters.reduce(
             (missingChapterCount, chapter, index) =>
-                missingChapterCount + Chapters.getGap(chapter, sortedChapters[index - 1] ?? { chapterNumber: 0 }),
+                missingChapterCount +
+                Chapters.getGap(chapter, sortedChapters[index - 1] ?? { chapterNumber: aboveChapterNumber ?? 0 }),
             0,
         );
     }

@@ -125,6 +125,7 @@ export interface TMigrationEntry {
     mangaArtist: MangaArtistInfo['artist'];
     mangaAuthor: MangaAuthorInfo['author'];
     latestChapterNumber: ChapterNumberInfo['chapterNumber'] | undefined;
+    latestReadChapterNumber: ChapterNumberInfo['chapterNumber'] | undefined;
     missingChapters: number | undefined;
     mangaThumbnailUrl: MangaThumbnailInfo['thumbnailUrl'] | undefined;
     sourceId: SourceIdInfo['id'];

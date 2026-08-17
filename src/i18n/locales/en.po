@@ -2835,8 +2835,8 @@ msgid "Only automatically select matches that have more chapters than the curren
 msgstr "Only automatically select matches that have more chapters than the current source"
 
 #: src/features/migration/components/MigrationBulkSearchOptionsDialog.tsx
-msgid "Only automatically select matches whose chapter list has no gaps"
-msgstr "Only automatically select matches whose chapter list has no gaps"
+msgid "Only automatically select matches whose chapter list has no gaps after the current read progress (gaps in already read chapters do not matter)"
+msgstr "Only automatically select matches whose chapter list has no gaps after the current read progress (gaps in already read chapters do not matter)"
 
 #: src/features/migration/Migration.constants.ts
 msgid "Only outdated matches found"

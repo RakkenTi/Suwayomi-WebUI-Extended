@@ -47,6 +47,7 @@ import type {
     MangaArtistInfo,
     MangaAuthorInfo,
     MangaHighestChapterNumberInfo,
+    MangaLatestReadChapterNumberInfo,
     MangaIdInfo,
     MangaSourceIdInfo,
     MangaSourceNameInfo,
@@ -278,6 +279,7 @@ export class MigrationManager {
             mangaArtist: cachedEntry?.artist ?? entry.mangaArtist,
             mangaAuthor: cachedEntry?.author ?? entry.mangaAuthor,
             latestChapterNumber: cachedEntry?.highestNumberedChapter?.chapterNumber ?? entry.latestChapterNumber,
+            latestReadChapterNumber: cachedEntry?.latestReadChapter?.chapterNumber ?? entry.latestReadChapterNumber,
             missingChapters: entry.missingChapters,
             mangaThumbnailUrl: cachedEntry?.thumbnailUrl ?? entry.mangaThumbnailUrl,
             sourceId: cachedEntry?.sourceId ?? entry.sourceId,
@@ -321,6 +323,7 @@ export class MigrationManager {
             MangaArtistInfo &
             MangaAuthorInfo &
             MangaHighestChapterNumberInfo &
+            MangaLatestReadChapterNumberInfo &
             MangaThumbnailInfo &
             MangaSourceIdInfo &
             MangaSourceNameInfo)[],
@@ -356,6 +359,7 @@ export class MigrationManager {
                         mangaArtist: manga.artist,
                         mangaAuthor: manga.author,
                         latestChapterNumber: manga.highestNumberedChapter?.chapterNumber,
+                        latestReadChapterNumber: manga.latestReadChapter?.chapterNumber,
                         missingChapters: undefined,
                         mangaThumbnailUrl: manga.thumbnailUrl,
                         sourceId: manga.sourceId,
@@ -913,7 +917,9 @@ export class MigrationManager {
                 thumbnailUrl: manga.thumbnailUrl,
                 sourceId: manga.sourceId,
                 sourceTitle: manga.source?.displayName,
-                missingChapters: chapters ? Chapters.getMissingCount(chapters) : undefined,
+                missingChapters: chapters
+                    ? Chapters.getMissingCount(chapters, draftEntry.latestReadChapterNumber ?? 0)
+                    : undefined,
                 inLibrary: manga.inLibrary,
             }));
 

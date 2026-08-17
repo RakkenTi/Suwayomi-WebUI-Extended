@@ -61,7 +61,7 @@ export const MigrationBulkSearchOptionsDialog = ({
                 />
                 <CheckboxInput
                     primaryText={t`Require no missing chapters`}
-                    secondaryText={t`Only automatically select matches whose chapter list has no gaps`}
+                    secondaryText={t`Only automatically select matches whose chapter list has no gaps after the current read progress (gaps in already read chapters do not matter)`}
                     sx={{
                         alignItems: 'start',
                     }}
