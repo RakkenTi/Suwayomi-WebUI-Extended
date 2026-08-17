@@ -30,7 +30,7 @@ export const MigrationBulkSearchOptionsDialog = ({
 
     const [selectHighestChapterNumberSource, setSelectHighestChapterNumberSource] = useState(false);
     const [ignoreOutdatedMatches, setIgnoreOutdatedMatches] = useState(true);
-    const [ignoreWithMissingChapters, setIgnoreWithMissingChapters] = useState(false);
+    const [ignoreWithMissingChapters, setIgnoreWithMissingChapters] = useState(true);
     const [requireAdditionalChapters, setRequireAdditionalChapters] = useState(false);
     const [performAdvancedSearch, setPerformAdvancedSearch] = useState(false);
 

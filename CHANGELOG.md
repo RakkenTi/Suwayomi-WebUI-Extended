@@ -17,7 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Changed
 
 - (**Migration**) Clarify the bulk search option descriptions and require matches to have at least the same latest chapter by default
-- (**Migration**) Only consider chapters after the read progress for the "Require no missing chapters" bulk search option (a match missing already read chapters is as good as a complete one)
+- (**Migration**) Only consider chapters after the read progress for the "Require no missing chapters" bulk search option (a match missing already read chapters is as good as a complete one) and enable the option by default
 - (**Extension**) Install extension when clicking card of uninstalled extension
 - (**Updates/History/Downloads**) Show scanlator of chapter
 - (**Updates**) Improve render performance of the collapsed more updates
