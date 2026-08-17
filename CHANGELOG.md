@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - (**Download**) Add button to retry all failed downloads
 - (**Download/Reader**) Add option to skip decimal chapters (e.g. 10.5) for download selection and the reader's next chapter navigation in case their chapter (e.g. 10) exists (global setting in the download settings, overridable per entry via its chapter list options)
 - (**Migration**) Add source health check to the migration source list to detect dead sources (probes each source with library entries and flags unreachable ones and ones without results, additionally obsolete and uninstalled extensions get flagged)
+- (**Migration**) Add menu to the migration source list cards with explicit actions to prune a dead source (migrate its entries, remove its entries from the library, uninstall its extension)
 
 ### Changed
 

@@ -173,7 +173,13 @@ export const MigrationSelectSource = () => {
             <List sx={{ p: 0 }}>
                 {migratableSources.map((migratableSource) => (
                     <StyledGroupItemWrapper key={migratableSource.id}>
-                        <MigrationCard source={migratableSource} health={healthBySourceId[migratableSource.id]} />
+                        <MigrationCard
+                            source={migratableSource}
+                            health={healthBySourceId[migratableSource.id]}
+                            onEntriesChanged={() =>
+                                refetch().catch(defaultPromiseErrorHandler('MigrationSelectSource::refetch'))
+                            }
+                        />
                     </StyledGroupItemWrapper>
                 ))}
             </List>

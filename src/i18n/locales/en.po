@@ -2569,6 +2569,10 @@ msgstr "Migrate"
 msgid "Migrate \"{0}\""
 msgstr "Migrate \"{0}\""
 
+#: src/features/migration/components/MigrationCard.tsx
+msgid "Migrate entries"
+msgstr "Migrate entries"
+
 #: src/features/manga/Manga.constants.ts
 msgid "Migrate selected"
 msgstr "Migrate selected"
@@ -2902,6 +2906,7 @@ msgstr "Open website"
 
 #: src/features/chapter/components/cards/ChapterCard.tsx
 #: src/features/manga/components/MangaOptionButton.tsx
+#: src/features/migration/components/MigrationCard.tsx
 msgid "Options"
 msgstr "Options"
 
@@ -3132,6 +3137,10 @@ msgstr "Remove bookmark"
 #: src/features/chapter/Chapter.constants.ts
 msgid "Remove bookmarks from selected"
 msgstr "Remove bookmarks from selected"
+
+#: src/features/migration/components/MigrationCard.tsx
+msgid "Remove entries from library"
+msgstr "Remove entries from library"
 
 #: src/features/manga/components/MangaBadges.tsx
 #: src/features/manga/Manga.constants.ts
@@ -4107,6 +4116,10 @@ msgstr "Understood"
 #: src/features/extension/Extensions.constants.ts
 msgid "Uninstall"
 msgstr "Uninstall"
+
+#: src/features/migration/components/MigrationCard.tsx
+msgid "Uninstall extension"
+msgstr "Uninstall extension"
 
 #: src/features/extension/Extensions.constants.ts
 msgid "Uninstalling"

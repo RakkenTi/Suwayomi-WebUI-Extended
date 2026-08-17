@@ -62,6 +62,7 @@ export const GET_MIGRATABLE_SOURCES = gql`
     query GET_MIGRATABLE_SOURCES {
         mangas(condition: { inLibrary: true }) {
             nodes {
+                id
                 sourceId
                 source {
                     ...SOURCE_BASE_FIELDS

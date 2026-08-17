@@ -4299,6 +4299,7 @@ export type GetMigratableSourcesQuery = {
         __typename: 'MangaNodeList';
         nodes: Array<{
             __typename: 'MangaType';
+            id: number;
             sourceId: string;
             source: {
                 __typename: 'SourceType';

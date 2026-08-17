@@ -213,14 +213,23 @@ export class Sources {
         const sourcesSortedBy = useMemo(() => {
             const sourceBySourceId: Record<string, TMigratableSource> = {};
 
-            mangas.forEach(({ sourceId, source }) => {
+            mangas.forEach(({ id: mangaId, sourceId, source }) => {
                 const uniqueSource = sourceBySourceId[sourceId] ?? {
-                    ...{ id: sourceId, name: sourceId, lang: 'unknown', iconUrl: null, mangaCount: 0, ...source },
+                    ...{
+                        id: sourceId,
+                        name: sourceId,
+                        lang: 'unknown',
+                        iconUrl: null,
+                        mangaCount: 0,
+                        mangaIds: [],
+                        ...source,
+                    },
                 };
 
                 sourceBySourceId[sourceId] = {
                     ...uniqueSource,
                     mangaCount: uniqueSource.mangaCount + 1,
+                    mangaIds: [...uniqueSource.mangaIds, mangaId],
                 };
             });
 

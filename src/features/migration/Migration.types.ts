@@ -162,6 +162,7 @@ export interface SourceItem extends SourceIdInfo, SourceNameInfo, SourceLanguage
 
 export type TMigratableSource = NonNullable<GetMigratableSourcesQuery['mangas']['nodes'][number]['source']> & {
     mangaCount: number;
+    mangaIds: MangaIdInfo['id'][];
 };
 
 export type MangaToMigrate = NonNullable<GetMangaToMigrateQuery['manga']>;
