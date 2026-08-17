@@ -3174,6 +3174,7 @@ msgstr "Resume"
 #: src/base/components/feedback/EmptyView.tsx
 #: src/base/components/SpinnerImage.tsx
 #: src/features/chapter/components/buttons/ChapterDownloadRetryButton.tsx
+#: src/features/global-search/screens/SearchAll.tsx
 #: src/features/manga/hooks/useManageMangaLibraryState.tsx
 #: src/features/migration/components/migration-entry/MigrationDestinationEntry.tsx
 msgid "Retry"
@@ -3274,6 +3275,10 @@ msgstr "Search"
 #: src/features/migration/Migration.constants.ts
 msgid "Search failed"
 msgstr "Search failed"
+
+#: src/features/global-search/screens/SearchAll.tsx
+msgid "Search failed - retrying…"
+msgstr "Search failed - retrying…"
 
 #: src/features/library/screens/Library.tsx
 msgid "Search for \"{query}\" globally"
@@ -3473,6 +3478,7 @@ msgid "Show in sources and extensions lists"
 msgstr "Show in sources and extensions lists"
 
 #: src/base/components/feedback/EmptyView.tsx
+#: src/features/global-search/screens/SearchAll.tsx
 #: src/features/tracker/components/cards/TrackerMangaCard.tsx
 msgid "Show less"
 msgstr "Show less"

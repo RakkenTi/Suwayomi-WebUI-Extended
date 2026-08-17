@@ -15,6 +15,9 @@ import { StringParam, useQueryParam } from 'use-query-params';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
+import CircularProgress from '@mui/material/CircularProgress';
+import Collapse from '@mui/material/Collapse';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import PushPinIcon from '@mui/icons-material/PushPin';
 import DoneAllIcon from '@mui/icons-material/DoneAll';
 import FilterListIcon from '@mui/icons-material/FilterList';
@@ -35,7 +38,7 @@ import { BaseMangaGrid } from '@/features/manga/components/BaseMangaGrid.tsx';
 import { EmptyViewAbsoluteCentered } from '@/base/components/feedback/EmptyViewAbsoluteCentered.tsx';
 import { translateExtensionLanguage } from '@/features/extension/Extensions.utils.ts';
 import { AppRoutes } from '@/base/AppRoute.constants.ts';
-import { getErrorMessage } from '@/lib/HelperFunctions.ts';
+import { extractGraphqlExceptionInfo, getErrorMessage } from '@/lib/HelperFunctions.ts';
 import { Sources } from '@/features/source/services/Sources.ts';
 import type {
     SourceDisplayNameInfo,
@@ -122,6 +125,82 @@ const compareSourcesBySearchResult = (
 };
 const TRIGGER_SEARCH_THRESHOLD = d(1).seconds.inWholeMilliseconds;
 
+const SOURCE_SEARCH_MAX_AUTO_RETRIES = 2;
+const SOURCE_SEARCH_AUTO_RETRY_DELAYS = [d(1).seconds.inWholeMilliseconds, d(3).seconds.inWholeMilliseconds];
+
+const getShortSourceSearchErrorMessage = (error: unknown): string => {
+    const fullMessage = getErrorMessage(error);
+    const { isGraphqlException, graphqlError } = extractGraphqlExceptionInfo(fullMessage);
+    const message = isGraphqlException ? (graphqlError ?? fullMessage) : fullMessage;
+
+    // only keep the actual reason of graphql exceptions (e.g. "Exception while fetching data (/fetchSourceManga) :
+    // java.lang.Exception: HTTP error 503")
+    return message
+        .replace(/^.*Exception while fetching data \(.*?\) : /, '')
+        .split('\n')[0]!
+        .trim();
+};
+
+const SourceSearchError = ({
+    error,
+    isAutoRetryPending,
+    retry,
+}: {
+    error: unknown;
+    isAutoRetryPending: boolean;
+    retry: () => void;
+}) => {
+    const { t } = useLingui();
+
+    const [showDetails, setShowDetails] = useState(false);
+
+    if (isAutoRetryPending) {
+        return (
+            <Stack sx={{ flexDirection: 'row', alignItems: 'center', gap: 1, px: 1 }}>
+                <CircularProgress size={15} />
+                <Typography variant="body2" color="textSecondary">
+                    {t`Search failed - retrying…`}
+                </Typography>
+            </Stack>
+        );
+    }
+
+    return (
+        <Stack sx={{ px: 1 }}>
+            <Stack sx={{ flexDirection: 'row', alignItems: 'center', gap: 1 }}>
+                <WarningAmberIcon fontSize="small" color="error" />
+                <Typography
+                    variant="body2"
+                    sx={{
+                        flexShrink: 1,
+                        minWidth: 0,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                    }}
+                >
+                    {getShortSourceSearchErrorMessage(error) || t`Could not search source`}
+                </Typography>
+                <Button size="small" onClick={retry} sx={{ flexShrink: 0 }}>
+                    {t`Retry`}
+                </Button>
+                <Button size="small" onClick={() => setShowDetails(!showDetails)} sx={{ flexShrink: 0 }}>
+                    {showDetails ? t`Show less` : t`Show more`}
+                </Button>
+            </Stack>
+            <Collapse in={showDetails}>
+                <Typography
+                    variant="body2"
+                    color="textSecondary"
+                    sx={{ wordBreak: 'break-word', whiteSpace: 'pre-line' }}
+                >
+                    {getErrorMessage(error)}
+                </Typography>
+            </Collapse>
+        </Stack>
+    );
+};
+
 const SourceSearchPreview = React.memo(
     ({
         source,
@@ -149,10 +228,16 @@ const SourceSearchPreview = React.memo(
         const currentSearchString = useRef(searchString);
         const currentAbortRequest = useRef<(reason: any) => void>(() => {});
 
+        const [autoRetryAttempt, setAutoRetryAttempt] = useState(0);
+
         const didSearchChange = currentSearchString.current !== searchString;
         if (didSearchChange) {
             currentSearchString.current = searchString;
             currentAbortRequest.current(new Error(`SourceSearchPreview(${id}, ${name}): search string changed`));
+
+            if (autoRetryAttempt !== 0) {
+                setAutoRetryAttempt(0);
+            }
         }
 
         const [refetch, results] = requestManager.useSourceSearch(id, searchString ?? '', undefined, 1, {
@@ -165,34 +250,50 @@ const SourceSearchPreview = React.memo(
 
         const tmpMangas = searchResult?.fetchSourceManga?.mangas ?? STABLE_EMPTY_ARRAY;
         const mangas = tmpMangas.filter((manga) => manga.id !== mangaId);
+        const hasSearchFailed = !!error && !isLoading;
+        const isAutoRetryPending =
+            hasSearchFailed && !!searchString && autoRetryAttempt < SOURCE_SEARCH_MAX_AUTO_RETRIES;
         const noMangasFound = !error && !isLoading && !mangas.length;
 
         useEffect(() => {
             onSearchRequestFinished(source, {
-                isLoading,
+                isLoading: isLoading || isAutoRetryPending,
                 hasResults: !noMangasFound,
                 emptySearch: !searchString,
                 error,
             });
-        }, [isLoading, noMangasFound, searchString, error]);
+        }, [isLoading, isAutoRetryPending, noMangasFound, searchString, error]);
+
+        // automatically retry failed searches a limited amount of times to reduce the shown errors caused by e.g.
+        // flaky sources or rate limits
+        useEffect(() => {
+            if (!isAutoRetryPending) {
+                return () => {};
+            }
+
+            const timeout = setTimeout(
+                () => {
+                    setAutoRetryAttempt(autoRetryAttempt + 1);
+                    refetch(1).catch(
+                        defaultPromiseErrorHandler(`SourceSearchPreview(${source.id})::autoRetry(${autoRetryAttempt})`),
+                    );
+                },
+                SOURCE_SEARCH_AUTO_RETRY_DELAYS[autoRetryAttempt] ?? SOURCE_SEARCH_AUTO_RETRY_DELAYS.slice(-1)[0],
+            );
+
+            return () => clearTimeout(timeout);
+        }, [isAutoRetryPending, autoRetryAttempt, error, searchString]);
 
         useEffect(
             () => () => currentAbortRequest.current?.(new Error(`SourceSearchPreview(${id}, ${name}): search closed`)),
             [],
         );
 
-        let errorMessage: string | undefined;
-        if (error) {
-            errorMessage = t`Could not search source`;
-        } else if (noMangasFound) {
-            errorMessage = t`No manga found`;
-        }
-
         if ((!isLoading && !searchString) || emptyQuery) {
             return null;
         }
 
-        if (shouldShowOnlySourcesWithResults && (noMangasFound || error)) {
+        if (shouldShowOnlySourcesWithResults && (noMangasFound || hasSearchFailed)) {
             return null;
         }
 
@@ -226,38 +327,48 @@ const SourceSearchPreview = React.memo(
                         </CustomTooltip>
                     </CardActionArea>
                 </Card>
-                {errorMessage ? (
-                    <EmptyView
-                        sx={{ alignItems: 'start', height: undefined }}
-                        noFaces
-                        message={errorMessage}
-                        messageExtra={getErrorMessage(error)}
-                        retry={
-                            error
-                                ? () =>
-                                      refetch(1).catch(
-                                          defaultPromiseErrorHandler(`SourceSearchPreview(${source.id})::refetch`),
-                                      )
-                                : undefined
-                        }
-                    />
-                ) : (
-                    <BaseMangaGrid
-                        // the key needs to include filters and query to force a re-render of the virtuoso grid to prevent https://github.com/petyosi/react-virtuoso/issues/1242
-                        key={searchString}
-                        gridWrapperProps={{ sx: { px: 0 } }}
-                        mangas={mangas}
-                        isLoading={isLoading}
-                        hasNextPage={false}
-                        loadMore={() => undefined}
-                        horizontal
-                        noFaces
-                        message={errorMessage}
-                        inLibraryIndicator
-                        mode={mode}
-                        onMigrateSelect={onMigrateSelect}
-                    />
-                )}
+                {(() => {
+                    if (hasSearchFailed) {
+                        return (
+                            <SourceSearchError
+                                error={error}
+                                isAutoRetryPending={isAutoRetryPending}
+                                retry={() =>
+                                    refetch(1).catch(
+                                        defaultPromiseErrorHandler(`SourceSearchPreview(${source.id})::refetch`),
+                                    )
+                                }
+                            />
+                        );
+                    }
+
+                    if (noMangasFound) {
+                        return (
+                            <EmptyView
+                                sx={{ alignItems: 'start', height: undefined }}
+                                noFaces
+                                message={t`No manga found`}
+                            />
+                        );
+                    }
+
+                    return (
+                        <BaseMangaGrid
+                            // the key needs to include filters and query to force a re-render of the virtuoso grid to prevent https://github.com/petyosi/react-virtuoso/issues/1242
+                            key={searchString}
+                            gridWrapperProps={{ sx: { px: 0 } }}
+                            mangas={mangas}
+                            isLoading={isLoading}
+                            hasNextPage={false}
+                            loadMore={() => undefined}
+                            horizontal
+                            noFaces
+                            inLibraryIndicator
+                            mode={mode}
+                            onMigrateSelect={onMigrateSelect}
+                        />
+                    );
+                })()}
             </Box>
         );
     },
