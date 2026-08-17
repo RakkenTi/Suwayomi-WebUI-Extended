@@ -761,7 +761,7 @@ export class MigrationManager {
         const destinationSourceIds = MigrationManager.getDestinationSourceIds(mangaSourceId);
 
         const sourceIdPriority = destinationSourceIds.indexOf(destSourceId);
-        return destinationSourceIds.slice(0, Math.max(0, sourceIdPriority - 1));
+        return destinationSourceIds.slice(0, Math.max(0, sourceIdPriority));
     }
 
     private static isHigherPrioritySourceUnsettled(
@@ -1019,7 +1019,15 @@ export class MigrationManager {
 
         MigrationManager.updateEntrySearchState(mangaId, sourceId, foundMatches, options);
 
-        if (!selectHighestChapterNumberSource && !MigrationManager.isHigherPrioritySourceUnsettled(mangaId, sourceId)) {
+        // matches might not fulfill the search criteria, in which case the remaining sources still need to be searched
+        const wasMatchOfSourceSelected =
+            MigrationManager.getState().entries[mangaId]?.selectedMatchSourceId === sourceId;
+
+        if (
+            !selectHighestChapterNumberSource &&
+            wasMatchOfSourceSelected &&
+            !MigrationManager.isHigherPrioritySourceUnsettled(mangaId, sourceId)
+        ) {
             searchController.abort(`Found best match in source "${sourceId}"`);
         }
     }
