@@ -29,7 +29,7 @@ export const MigrationBulkSearchOptionsDialog = ({
     const { t } = useLingui();
 
     const [selectHighestChapterNumberSource, setSelectHighestChapterNumberSource] = useState(false);
-    const [ignoreOutdatedMatches, setIgnoreOutdatedMatches] = useState(false);
+    const [ignoreOutdatedMatches, setIgnoreOutdatedMatches] = useState(true);
     const [ignoreWithMissingChapters, setIgnoreWithMissingChapters] = useState(false);
     const [requireAdditionalChapters, setRequireAdditionalChapters] = useState(false);
     const [performAdvancedSearch, setPerformAdvancedSearch] = useState(false);
@@ -38,9 +38,12 @@ export const MigrationBulkSearchOptionsDialog = ({
         <Dialog open={isVisible} fullWidth onClose={onDismiss} onTransitionExited={onExitComplete}>
             <DialogTitle>{t`Search options`}</DialogTitle>
             <DialogContent dividers>
+                <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                    {t`Matches fulfilling all criteria get selected automatically. Entries without an automatic selection get listed for manual review.`}
+                </Typography>
                 <CheckboxInput
-                    primaryText={t`Ignore matches that are behind in chapters`}
-                    secondaryText={t`Automatically select matches if they have at least the same latest chapter`}
+                    primaryText={t`Require at least the same latest chapter`}
+                    secondaryText={t`Do not automatically select matches that are behind the current source's latest chapter`}
                     sx={{
                         alignItems: 'start',
                     }}
@@ -48,8 +51,8 @@ export const MigrationBulkSearchOptionsDialog = ({
                     onChange={(_, checked) => setIgnoreOutdatedMatches(checked)}
                 />
                 <CheckboxInput
-                    primaryText={t`Ignore matches without newer chapters`}
-                    secondaryText={t`Automatically select matches if they have additional chapters`}
+                    primaryText={t`Require newer chapters`}
+                    secondaryText={t`Only automatically select matches that have more chapters than the current source`}
                     sx={{
                         alignItems: 'start',
                     }}
@@ -57,8 +60,8 @@ export const MigrationBulkSearchOptionsDialog = ({
                     onChange={(_, checked) => setRequireAdditionalChapters(checked)}
                 />
                 <CheckboxInput
-                    primaryText={t`Ignore matches with missing chapters`}
-                    secondaryText={t`Automatically select matches if they have no missing chapters`}
+                    primaryText={t`Require no missing chapters`}
+                    secondaryText={t`Only automatically select matches whose chapter list has no gaps`}
                     sx={{
                         alignItems: 'start',
                     }}
@@ -88,7 +91,7 @@ export const MigrationBulkSearchOptionsDialog = ({
                 </Stack>
                 <CheckboxInput
                     primaryText={t`Advanced search mode`}
-                    secondaryText={t`Breaks down the title into keywords for a wider search`}
+                    secondaryText={t`Additionally search with the single keywords of the title to find more matches (causes many additional requests per entry)`}
                     sx={{
                         alignItems: 'start',
                     }}
@@ -96,8 +99,8 @@ export const MigrationBulkSearchOptionsDialog = ({
                     onChange={(_, checked) => setPerformAdvancedSearch(checked)}
                 />
                 <CheckboxInput
-                    primaryText={t`Match based on chapter number`}
-                    secondaryText={t`If enabled, chooses the match furthest ahead.\nOtherwise, picks the first match by source priority.`}
+                    primaryText={t`Pick the match that is furthest ahead`}
+                    secondaryText={t`Search all selected sources and pick the match with the highest chapter number.\nOtherwise, the first match in source order gets picked and the remaining sources get skipped.`}
                     sx={{
                         alignItems: 'start',
                     }}

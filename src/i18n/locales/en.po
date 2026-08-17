@@ -435,6 +435,10 @@ msgstr "Add tracking"
 msgid "Added manga to library!"
 msgstr "Added manga to library!"
 
+#: src/features/migration/components/MigrationBulkSearchOptionsDialog.tsx
+msgid "Additionally search with the single keywords of the title to find more matches (causes many additional requests per entry)"
+msgstr "Additionally search with the single keywords of the title to find more matches (causes many additional requests per entry)"
+
 #: src/features/library/screens/LibrarySettings.tsx
 msgid "Advanced"
 msgstr "Advanced"
@@ -578,18 +582,6 @@ msgstr "Automatically mark chapters as read when you download them."
 msgid "Automatically refresh metadata"
 msgstr "Automatically refresh metadata"
 
-#: src/features/migration/components/MigrationBulkSearchOptionsDialog.tsx
-msgid "Automatically select matches if they have additional chapters"
-msgstr "Automatically select matches if they have additional chapters"
-
-#: src/features/migration/components/MigrationBulkSearchOptionsDialog.tsx
-msgid "Automatically select matches if they have at least the same latest chapter"
-msgstr "Automatically select matches if they have at least the same latest chapter"
-
-#: src/features/migration/components/MigrationBulkSearchOptionsDialog.tsx
-msgid "Automatically select matches if they have no missing chapters"
-msgstr "Automatically select matches if they have no missing chapters"
-
 #: src/features/reader/settings/behaviour/ReaderBehaviourSettings.tsx
 msgid "Automatically use webtoon mode for entries that are detected to likely use the long strip format"
 msgstr "Automatically use webtoon mode for entries that are detected to likely use the long strip format"
@@ -684,10 +676,6 @@ msgstr "Both"
 #: src/features/reader/settings/general/components/ReaderSettingSafeAreaInset.tsx
 msgid "Bottom"
 msgstr "Bottom"
-
-#: src/features/migration/components/MigrationBulkSearchOptionsDialog.tsx
-msgid "Breaks down the title into keywords for a wider search"
-msgstr "Breaks down the title into keywords for a wider search"
 
 #: src/features/reader/settings/behaviour/ReaderBehaviourSettings.tsx
 msgid "Briefly show current mode when reader is opened or mode got changed"
@@ -1517,6 +1505,10 @@ msgstr "Display file sizes in binary (KiB, MiB, GiB) instead of decimal (KB, MB,
 msgid "Display mode"
 msgstr "Display mode"
 
+#: src/features/migration/components/MigrationBulkSearchOptionsDialog.tsx
+msgid "Do not automatically select matches that are behind the current source's latest chapter"
+msgstr "Do not automatically select matches that are behind the current source's latest chapter"
+
 #: src/features/downloads/screens/DownloadSettings.tsx
 msgid "Do not select decimal chapters (e.g. 10.5) for downloads and the reader's next chapter navigation in case their chapter (e.g. 10) exists. Can be overridden per entry via its chapter list options"
 msgstr "Do not select decimal chapters (e.g. 10.5) for downloads and the reader's next chapter navigation in case their chapter (e.g. 10) exists. Can be overridden per entry via its chapter list options"
@@ -2034,14 +2026,6 @@ msgstr "How many chapters should get downloaded while reading."
 msgid "How much time FlareSolverr has to handle the request"
 msgstr "How much time FlareSolverr has to handle the request"
 
-#: src/features/migration/components/MigrationBulkSearchOptionsDialog.tsx
-msgid ""
-"If enabled, chooses the match furthest ahead.\n"
-"Otherwise, picks the first match by source priority."
-msgstr ""
-"If enabled, chooses the match furthest ahead.\n"
-"Otherwise, picks the first match by source priority."
-
 #: src/features/app-updates/components/VersionUpdateInfoDialog.tsx
 msgid "Ignore"
 msgstr "Ignore"
@@ -2053,18 +2037,6 @@ msgstr "Ignore automatic chapter downloads for entries with unread chapters"
 #: src/features/library/screens/LibrarySettings.tsx
 msgid "Ignore filters when searching"
 msgstr "Ignore filters when searching"
-
-#: src/features/migration/components/MigrationBulkSearchOptionsDialog.tsx
-msgid "Ignore matches that are behind in chapters"
-msgstr "Ignore matches that are behind in chapters"
-
-#: src/features/migration/components/MigrationBulkSearchOptionsDialog.tsx
-msgid "Ignore matches with missing chapters"
-msgstr "Ignore matches with missing chapters"
-
-#: src/features/migration/components/MigrationBulkSearchOptionsDialog.tsx
-msgid "Ignore matches without newer chapters"
-msgstr "Ignore matches without newer chapters"
 
 #: src/features/downloads/screens/DownloadSettings.tsx
 msgid "Ignore re-uploaded chapters"
@@ -2524,10 +2496,6 @@ msgstr "Mark selected as read"
 msgid "Mark selected as unread"
 msgstr "Mark selected as unread"
 
-#: src/features/migration/components/MigrationBulkSearchOptionsDialog.tsx
-msgid "Match based on chapter number"
-msgstr "Match based on chapter number"
-
 #: src/features/migration/Migration.constants.ts
 msgid "Match found"
 msgstr "Match found"
@@ -2535,6 +2503,10 @@ msgstr "Match found"
 #: src/features/migration/components/migration-entry/MigrationEntry.tsx
 msgid "Matches"
 msgstr "Matches"
+
+#: src/features/migration/components/MigrationBulkSearchOptionsDialog.tsx
+msgid "Matches fulfilling all criteria get selected automatically. Entries without an automatic selection get listed for manual review."
+msgstr "Matches fulfilling all criteria get selected automatically. Entries without an automatic selection get listed for manual review."
 
 #: src/features/settings/screens/ServerSettings.tsx
 msgid "Maximum log file size"
@@ -2858,6 +2830,14 @@ msgstr "Oneshot"
 msgid "Ongoing"
 msgstr "Ongoing"
 
+#: src/features/migration/components/MigrationBulkSearchOptionsDialog.tsx
+msgid "Only automatically select matches that have more chapters than the current source"
+msgstr "Only automatically select matches that have more chapters than the current source"
+
+#: src/features/migration/components/MigrationBulkSearchOptionsDialog.tsx
+msgid "Only automatically select matches whose chapter list has no gaps"
+msgstr "Only automatically select matches whose chapter list has no gaps"
+
 #: src/features/migration/Migration.constants.ts
 msgid "Only outdated matches found"
 msgstr "Only outdated matches found"
@@ -2966,6 +2946,10 @@ msgstr "Pending…"
 #: src/features/settings/components/koreaderSync/KoreaderSyncSettings.tsx
 msgid "Percentage Tolerance"
 msgstr "Percentage Tolerance"
+
+#: src/features/migration/components/MigrationBulkSearchOptionsDialog.tsx
+msgid "Pick the match that is furthest ahead"
+msgstr "Pick the match that is furthest ahead"
 
 #: src/features/browse/sources/components/SourceCard.tsx
 msgid "Pin source"
@@ -3170,6 +3154,18 @@ msgstr "Remove selected from the library"
 msgid "Removed non library manga from categories"
 msgstr "Removed non library manga from categories"
 
+#: src/features/migration/components/MigrationBulkSearchOptionsDialog.tsx
+msgid "Require at least the same latest chapter"
+msgstr "Require at least the same latest chapter"
+
+#: src/features/migration/components/MigrationBulkSearchOptionsDialog.tsx
+msgid "Require newer chapters"
+msgstr "Require newer chapters"
+
+#: src/features/migration/components/MigrationBulkSearchOptionsDialog.tsx
+msgid "Require no missing chapters"
+msgstr "Require no missing chapters"
+
 #: src/base/components/buttons/ResetButton.tsx
 #: src/base/components/settings/CheckboxListSetting.tsx
 #: src/features/reader/hotkeys/settings/components/RecordHotkey.tsx
@@ -3306,6 +3302,14 @@ msgstr "Scroll forward"
 #: src/features/migration/components/MigrationBulkSearchOptionsDialog.tsx
 msgid "Search"
 msgstr "Search"
+
+#: src/features/migration/components/MigrationBulkSearchOptionsDialog.tsx
+msgid ""
+"Search all selected sources and pick the match with the highest chapter number.\n"
+"Otherwise, the first match in source order gets picked and the remaining sources get skipped."
+msgstr ""
+"Search all selected sources and pick the match with the highest chapter number.\n"
+"Otherwise, the first match in source order gets picked and the remaining sources get skipped."
 
 #: src/features/migration/components/migration-entry/MigrationDestinationEntry.tsx
 #: src/features/migration/Migration.constants.ts

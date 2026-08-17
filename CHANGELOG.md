@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
+- (**Migration**) Clarify the bulk search option descriptions and require matches to have at least the same latest chapter by default
 - (**Extension**) Install extension when clicking card of uninstalled extension
 - (**Updates/History/Downloads**) Show scanlator of chapter
 - (**Updates**) Improve render performance of the collapsed more updates
