@@ -18,4 +18,9 @@ export type MetadataDownloadSettings = {
      * Can be overridden per manga via {@link ChapterListOptions#skipDecimalChapters}.
      */
     shouldSkipDecimalChapters: boolean;
+    /**
+     * Whether failed downloads whose chapter no longer exists at the source (e.g. due to a re-upload) should
+     * automatically be recovered by refreshing the chapter list and downloading the replacement chapter instead.
+     */
+    shouldRecoverBrokenDownloads: boolean;
 };

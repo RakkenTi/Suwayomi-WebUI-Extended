@@ -147,6 +147,17 @@ export const DownloadSettings = () => {
                     onChange={(e) => updateMetadataSetting('shouldSkipDecimalChapters', e.target.checked)}
                 />
             </ListItem>
+            <ListItem>
+                <ListItemText
+                    primary={t`Automatically fix broken downloads`}
+                    secondary={t`When a download fails and its chapter no longer exists at the source (e.g. due to a re-upload), refresh the chapter list and download the replacement chapter instead`}
+                />
+                <Switch
+                    edge="end"
+                    checked={metadataSettings.shouldRecoverBrokenDownloads}
+                    onChange={(e) => updateMetadataSetting('shouldRecoverBrokenDownloads', e.target.checked)}
+                />
+            </ListItem>
             <List
                 subheader={
                     <ListSubheader component="div" id="download-settings-auto-delete-downloads">

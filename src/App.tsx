@@ -18,6 +18,7 @@ import { AppContext } from '@/base/contexts/AppContext.tsx';
 import { DefaultNavBar } from '@/features/navigation-bar/components/DefaultNavBar.tsx';
 import { requestManager } from '@/lib/requests/RequestManager.ts';
 import { WebUIUpdateChecker } from '@/features/app-updates/components/WebUIUpdateChecker.tsx';
+import { useBrokenDownloadRecovery } from '@/features/downloads/hooks/useBrokenDownloadRecovery.ts';
 import { ServerUpdateChecker } from '@/features/app-updates/components/ServerUpdateChecker.tsx';
 import { lazyLoadFallback } from '@/base/utils/LazyLoad.tsx';
 import { ErrorBoundary } from '@/base/components/feedback/ErrorBoundary.tsx';
@@ -197,7 +198,9 @@ const BackgroundSubscriptions = () => {
 
     const skipConnection = isAuthRequired === null || (isAuthRequired && !accessToken);
 
-    requestManager.useDownloadSubscription({ skip: skipConnection });
+    const downloadSubscription = requestManager.useDownloadSubscription({ skip: skipConnection });
+    useBrokenDownloadRecovery(downloadSubscription.data?.downloadStatusChanged);
+
     requestManager.useUpdaterSubscription({ skip: skipConnection });
     requestManager.useWebUIUpdateSubscription({ skip: skipConnection });
     requestManager.useSyncSubscription({ skip: skipConnection });

@@ -104,6 +104,9 @@ export const APP_METADATA: Record<
     shouldSkipDecimalChapters: {
         convert: convertToBoolean,
     },
+    shouldRecoverBrokenDownloads: {
+        convert: convertToBoolean,
+    },
     skipDecimalChapters: {
         convert: convertToBooleanNullAndUndefined,
     },
@@ -434,6 +437,7 @@ export const GLOBAL_METADATA_KEYS: AppMetadataKeys[] = [
     'deleteChaptersWhileReading',
     'deleteChaptersWithBookmark',
     'shouldSkipDecimalChapters',
+    'shouldRecoverBrokenDownloads',
 
     // library
     'showAddToLibraryCategorySelectDialog',

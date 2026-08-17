@@ -19,6 +19,12 @@ msgstr ""
 msgid "— State: {0}"
 msgstr "— State: {0}"
 
+#. placeholder {0}: chapter.name
+#. placeholder {1}: manga.title
+#: src/features/downloads/hooks/useBrokenDownloadRecovery.ts
+msgid "\"{0}\" ({1}) no longer exists at the source"
+msgstr "\"{0}\" ({1}) no longer exists at the source"
+
 #. placeholder {0}: selectedChapters.length
 #. placeholder {0}: visibleChapters.length
 #: src/features/chapter/components/ChapterList.tsx
@@ -573,6 +579,10 @@ msgstr "Automatic updates"
 #: src/features/settings/components/webUI/WebUIUpdateIntervalSetting.tsx
 msgid "Automatically download the latest version"
 msgstr "Automatically download the latest version"
+
+#: src/features/downloads/screens/DownloadSettings.tsx
+msgid "Automatically fix broken downloads"
+msgstr "Automatically fix broken downloads"
 
 #: src/features/settings/screens/ServerSettings.tsx
 msgid "Automatically mark chapters as read when you download them."
@@ -1771,6 +1781,10 @@ msgstr "Failed to connect to KOReader Sync server."
 #: src/features/settings/components/koreaderSync/KoreaderSyncSettings.tsx
 msgid "Failed to disconnect from KOReader Sync server."
 msgstr "Failed to disconnect from KOReader Sync server."
+
+#: src/features/downloads/hooks/useBrokenDownloadRecovery.ts
+msgid "Failed to recover broken download"
+msgstr "Failed to recover broken download"
 
 #: src/features/backup/screens/Backup.tsx
 #: src/features/browse/extensions/Extensions.tsx
@@ -3048,6 +3062,12 @@ msgstr "Quick settings"
 #: src/features/library/components/LibraryOptionsPanel.tsx
 msgid "Random"
 msgstr "Random"
+
+#. placeholder {0}: chapter.name
+#. placeholder {1}: manga.title
+#: src/features/downloads/hooks/useBrokenDownloadRecovery.ts
+msgid "Re-queued \"{0}\" ({1}) for its updated chapter entry"
+msgstr "Re-queued \"{0}\" ({1}) for its updated chapter entry"
 
 #: src/features/reader/settings/screens/GlobalReaderSettings.tsx
 #: src/features/settings/screens/Settings.tsx
@@ -4350,6 +4370,10 @@ msgstr "WebView"
 #: src/features/settings/Settings.constants.ts
 msgid "Weekly"
 msgstr "Weekly"
+
+#: src/features/downloads/screens/DownloadSettings.tsx
+msgid "When a download fails and its chapter no longer exists at the source (e.g. due to a re-upload), refresh the chapter list and download the replacement chapter instead"
+msgstr "When a download fails and its chapter no longer exists at the source (e.g. due to a re-upload), refresh the chapter list and download the replacement chapter instead"
 
 #: src/features/settings/screens/ServerSettings.tsx
 msgid "When enabled, download and streaming links are provided directly in the chapter list. KoSync strategies are applied, but PROMPT conflicts are ignored (treating local progress as priority)"
