@@ -1,0 +1,63 @@
+name: Build fork WebUI release
+
+on:
+  push:
+    branches:
+      - master
+      - feature/**
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-fork-release-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build and publish rolling release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up NodeJs
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: './package.json'
+
+      - uses: pnpm/action-setup@v4.2.0
+        name: Install pnpm
+        with:
+          version: 11.1.2
+
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            **/node_modules
+          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+
+      - name: Build webUI
+        run: |
+          pnpm build
+          echo "r$(git rev-list HEAD --count)" > build/revision
+          cd build
+          zip -9 -r ../Suwayomi-WebUI-Extended.zip .
+
+      - name: Update rolling release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: Latest WebUI build
+          body: |
+            Rolling release, automatically built from the latest push.
+
+            Branch: `${{ github.ref_name }}`
+            Commit: ${{ github.sha }}
+            Revision: served as the webUI revision in the server's about info
+          files: Suwayomi-WebUI-Extended.zip

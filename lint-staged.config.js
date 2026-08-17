@@ -8,6 +8,7 @@
 
 export default {
     '*.{ts,tsx,js,jsx}': ['oxfmt --write', 'oxlint --fix', () => `pnpm i18n:extract`, 'git add src/i18n/locales/*.po'],
-    '*.{json,md,yml,yaml,css,scss,html,graphql}': 'oxfmt --write',
+    // yml/yaml is unsupported by oxfmt and would fail the commit ("Expected at least one target file")
+    '*.{json,md,css,scss,html,graphql}': 'oxfmt --write',
     '*.{ts,tsx,json}': () => 'pnpm tsc',
 };
