@@ -25,7 +25,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - (**Download**) Make downloads cancelable outside the download queue page
 - (**Download**) Only download one entry per chapter when multiple scanlators published the same chapter
 - (**Global search**) Show count of entries in the library of each source
-- (**Global search**) Automatically retry failed source searches a limited amount of times
+- (**Global search**) Automatically retry failed source searches a limited amount of times (except timeouts, which would only multiply the time until the search of a source settles)
 - (**Global search**) Show a compact error message for failed source searches with the full details available on demand
 
 ### Fixed

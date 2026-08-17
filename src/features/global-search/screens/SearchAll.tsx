@@ -128,6 +128,16 @@ const TRIGGER_SEARCH_THRESHOLD = d(1).seconds.inWholeMilliseconds;
 const SOURCE_SEARCH_MAX_AUTO_RETRIES = 2;
 const SOURCE_SEARCH_AUTO_RETRY_DELAYS = [d(1).seconds.inWholeMilliseconds, d(3).seconds.inWholeMilliseconds];
 
+/**
+ * Timeouts are not worth retrying automatically.
+ *
+ * They only occur after the source (or the cloudflare bypass in front of it) already blocked for a long time, so
+ * retrying multiplies the time until the search of a source settles without a realistic chance of succeeding.
+ */
+const SOURCE_SEARCH_NON_AUTO_RETRYABLE_ERROR_REGEX = /timeout|timed out/i;
+const isAutoRetryableSourceSearchError = (error: unknown): boolean =>
+    !SOURCE_SEARCH_NON_AUTO_RETRYABLE_ERROR_REGEX.test(getErrorMessage(error));
+
 const getShortSourceSearchErrorMessage = (error: unknown): string => {
     const fullMessage = getErrorMessage(error);
     const { isGraphqlException, graphqlError } = extractGraphqlExceptionInfo(fullMessage);
@@ -252,7 +262,10 @@ const SourceSearchPreview = React.memo(
         const mangas = tmpMangas.filter((manga) => manga.id !== mangaId);
         const hasSearchFailed = !!error && !isLoading;
         const isAutoRetryPending =
-            hasSearchFailed && !!searchString && autoRetryAttempt < SOURCE_SEARCH_MAX_AUTO_RETRIES;
+            hasSearchFailed &&
+            !!searchString &&
+            autoRetryAttempt < SOURCE_SEARCH_MAX_AUTO_RETRIES &&
+            isAutoRetryableSourceSearchError(error);
         const noMangasFound = !error && !isLoading && !mangas.length;
 
         useEffect(() => {
