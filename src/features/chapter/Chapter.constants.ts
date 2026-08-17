@@ -19,6 +19,7 @@ export const DEFAULT_CHAPTER_OPTIONS: ChapterListOptions = {
     reverse: true,
     sortBy: 'source',
     showChapterNumber: false,
+    skipDecimalChapters: undefined,
     excludedScanlators: [],
 };
 

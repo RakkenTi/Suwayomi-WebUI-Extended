@@ -71,6 +71,11 @@ export const ChapterOptions: React.FC<IProps> = ({
                                 checked={options.bookmarked}
                                 onChange={(c) => updateOption('bookmarked', c)}
                             />
+                            <ThreeStateCheckboxInput
+                                label={t`Skip decimal chapters (downloads, reader) - unset: global setting`}
+                                checked={options.skipDecimalChapters}
+                                onChange={(c) => updateOption('skipDecimalChapters', c)}
+                            />
                             <ChapterExcludeSanlatorsFilter
                                 scanlators={scanlators}
                                 excludedScanlators={excludedScanlators}

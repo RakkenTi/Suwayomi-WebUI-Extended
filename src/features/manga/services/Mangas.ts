@@ -239,7 +239,17 @@ export class Mangas {
                     (manga) => manga.id,
                 );
 
-                const [chaptersToConsider, unReadDownloadedChapters] = await Promise.all([
+                const { shouldSkipDecimalChapters } = await getMetadataServerSettings();
+                const mangaIdsToSkipDecimalChapters = mangaIds.filter((mangaId) => {
+                    const manga = mangaByMangaId[mangaId]?.[0];
+                    if (!manga) {
+                        return shouldSkipDecimalChapters;
+                    }
+
+                    return getMangaMetadata(manga).skipDecimalChapters ?? shouldSkipDecimalChapters;
+                });
+
+                const [chaptersToConsider, unReadDownloadedChapters, decimalChapterScopeChapters] = await Promise.all([
                     Mangas.getChapterIdsWithState(mangaIds, {
                         isRead: onlyUnread ? false : undefined,
                         isDownloaded: false,
@@ -250,7 +260,16 @@ export class Mangas {
                               isDownloaded: true,
                           })
                         : [],
+                    // the full chapter list is required to know if the integer chapter of a decimal chapter exists
+                    mangaIdsToSkipDecimalChapters.length
+                        ? Mangas.getChapterIdsWithState(mangaIdsToSkipDecimalChapters, {})
+                        : [],
                 ]);
+
+                const decimalChapterScopeChaptersByMangaId = Object.groupBy(
+                    decimalChapterScopeChapters,
+                    (chapter) => chapter.mangaId,
+                );
 
                 const chaptersToConsiderByMangaId = Object.groupBy(chaptersToConsider, (chapter) => chapter.mangaId);
                 const unReadDownloadedChaptersByMangaId = Object.groupBy(
@@ -296,7 +315,19 @@ export class Mangas {
 
                 const chaptersToDownload = mangaIdToActualDownloadSize
                     .flatMap(([mangaId, actualSize]) => {
-                        const mangaChapters = filteredChaptersToConsiderByMangaId[Number(mangaId)] ?? [];
+                        const allMangaChapters = filteredChaptersToConsiderByMangaId[Number(mangaId)] ?? [];
+
+                        if (!allMangaChapters.length) {
+                            return [];
+                        }
+
+                        const skipDecimalChapters = mangaIdsToSkipDecimalChapters.includes(Number(mangaId));
+                        const mangaChapters = skipDecimalChapters
+                            ? Chapters.removeSkippableDecimalChapters(
+                                  allMangaChapters,
+                                  decimalChapterScopeChaptersByMangaId[Number(mangaId)] ?? allMangaChapters,
+                              )
+                            : allMangaChapters;
 
                         if (!mangaChapters.length) {
                             return [];

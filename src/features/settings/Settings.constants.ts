@@ -47,6 +47,7 @@ export const SERVER_SETTINGS_METADATA_DEFAULT: MetadataServerSettings = {
     deleteChaptersWhileReading: 0,
     deleteChaptersWithBookmark: false,
     downloadAheadLimit: 0,
+    shouldSkipDecimalChapters: false,
 
     // library
     showAddToLibraryCategorySelectDialog: true,

@@ -1508,6 +1508,10 @@ msgstr "Display file sizes in binary (KiB, MiB, GiB) instead of decimal (KB, MB,
 msgid "Display mode"
 msgstr "Display mode"
 
+#: src/features/downloads/screens/DownloadSettings.tsx
+msgid "Do not select decimal chapters (e.g. 10.5) for downloads and the reader's next chapter navigation in case their chapter (e.g. 10) exists. Can be overridden per entry via its chapter list options"
+msgstr "Do not select decimal chapters (e.g. 10.5) for downloads and the reader's next chapter navigation in case their chapter (e.g. 10) exists. Can be overridden per entry via its chapter list options"
+
 #: src/features/settings/components/koreaderSync/KoreaderSyncSettings.tsx
 msgid "Document matching method"
 msgstr "Document matching method"
@@ -3537,6 +3541,14 @@ msgstr "Single page"
 #: src/features/settings/screens/ServerSettings.tsx
 msgid "Skip chapter metadata feed"
 msgstr "Skip chapter metadata feed"
+
+#: src/features/downloads/screens/DownloadSettings.tsx
+msgid "Skip decimal chapters"
+msgstr "Skip decimal chapters"
+
+#: src/features/chapter/components/ChapterOptions.tsx
+msgid "Skip decimal chapters (downloads, reader) - unset: global setting"
+msgstr "Skip decimal chapters (downloads, reader) - unset: global setting"
 
 #: src/features/reader/settings/behaviour/ReaderBehaviourSettings.tsx
 msgid "Skip duplicate chapters"

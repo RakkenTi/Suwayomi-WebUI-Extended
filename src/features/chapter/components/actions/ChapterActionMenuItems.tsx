@@ -30,8 +30,11 @@ import { defaultPromiseErrorHandler } from '@/lib/DefaultPromiseErrorHandler.ts'
 import { useMetadataServerSettings } from '@/features/settings/services/ServerSettingsMetadata.ts';
 import type { ChapterCard } from '@/features/chapter/components/cards/ChapterCard.tsx';
 import { requestManager } from '@/lib/requests/RequestManager.ts';
-import type { GetChaptersMangaQuery } from '@/lib/graphql/generated/graphql.ts';
+import type { GetChaptersMangaQuery, GetMangaMetaQuery } from '@/lib/graphql/generated/graphql.ts';
 import { GET_CHAPTERS_MANGA } from '@/lib/graphql/chapter/ChapterQuery.ts';
+import { GET_MANGA_META } from '@/lib/graphql/manga/MangaQuery.ts';
+import { useGetMangaMetadata } from '@/features/manga/services/MangaMetadata.ts';
+import { FALLBACK_MANGA } from '@/features/manga/Manga.constants.ts';
 import { CHAPTER_ACTION_TO_TRANSLATION, FALLBACK_CHAPTER } from '@/features/chapter/Chapter.constants.ts';
 import type {
     ChapterAction,
@@ -93,8 +96,19 @@ export const ChapterActionMenuItems = ({
     const allChapters = mangaChaptersResponse.data?.chapters.nodes ?? STABLE_EMPTY_ARRAY;
 
     const {
-        settings: { deleteChaptersWithBookmark },
+        settings: { deleteChaptersWithBookmark, shouldSkipDecimalChapters },
     } = useMetadataServerSettings();
+
+    // the skip decimal chapters setting only applies to the select mode - all selected chapters belong to the same
+    // manga
+    const selectedMangaId = selectedChapters[0]?.mangaId;
+    const selectedMangaResponse = requestManager.useGetManga<GetMangaMetaQuery>(GET_MANGA_META, selectedMangaId ?? -1, {
+        skip: isSingleMode || selectedMangaId === undefined,
+    });
+    const { skipDecimalChapters: skipDecimalChaptersOverride } = useGetMangaMetadata(
+        selectedMangaResponse.data?.manga ?? FALLBACK_MANGA,
+    );
+    const skipDecimalChapters = skipDecimalChaptersOverride ?? shouldSkipDecimalChapters;
 
     const getMenuItemTitle = createGetMenuItemTitle(isSingleMode, CHAPTER_ACTION_TO_TRANSLATION);
     const shouldShowMenuItem = createShouldShowMenuItem(isSingleMode);
@@ -111,14 +125,18 @@ export const ChapterActionMenuItems = ({
     } = useMemo(
         () => ({
             downloadingChapters: Chapters.getDownloading(selectedChapters),
-            downloadableChapters: Chapters.getDownloadable(selectedChapters),
+            // skippable decimal chapters (e.g. 1.1 while 1 is selected) do not get downloaded - the scope for the
+            // skippable check is only the current selection
+            downloadableChapters: skipDecimalChapters
+                ? Chapters.removeSkippableDecimalChapters(Chapters.getDownloadable(selectedChapters), selectedChapters)
+                : Chapters.getDownloadable(selectedChapters),
             downloadedChapters: Chapters.getDownloaded(selectedChapters),
             unbookmarkedChapters: Chapters.getNonBookmarked(selectedChapters),
             bookmarkedChapters: Chapters.getBookmarked(selectedChapters),
             unreadChapters: Chapters.getNonRead(selectedChapters),
             readChapters: Chapters.getRead(selectedChapters),
         }),
-        [selectedChapters],
+        [selectedChapters, skipDecimalChapters],
     );
 
     const handleSelect = () => {

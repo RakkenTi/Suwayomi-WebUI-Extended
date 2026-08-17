@@ -11,4 +11,11 @@ export type MetadataDownloadSettings = {
     deleteChaptersWhileReading: number;
     deleteChaptersWithBookmark: boolean;
     downloadAheadLimit: number;
+    /**
+     * Whether decimal chapters (e.g. 10.5) should be skipped for download selection and the reader's next chapter
+     * navigation in case their integer chapter (e.g. 10) exists.
+     *
+     * Can be overridden per manga via {@link ChapterListOptions#skipDecimalChapters}.
+     */
+    shouldSkipDecimalChapters: boolean;
 };

@@ -27,6 +27,13 @@ export interface ChapterListFilterSortOptions extends ChapterListFilterOptions, 
 
 export interface ChapterListOptions extends ChapterListFilterSortOptions {
     showChapterNumber: boolean;
+    /**
+     * Per manga override of the global "shouldSkipDecimalChapters" setting.
+     *
+     * Applies to download selection and the reader's next chapter navigation - "null | undefined" means that the
+     * global setting should be used
+     */
+    skipDecimalChapters: NullAndUndefined<boolean>;
 }
 
 export type TChapterReader = ChapterReaderFieldsFragment;

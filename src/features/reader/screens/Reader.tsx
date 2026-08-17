@@ -34,6 +34,7 @@ import { useReaderShowSettingPreviewOnChange } from '@/features/reader/hooks/use
 import { useReaderSetChaptersState } from '@/features/reader/hooks/useReaderSetChaptersState.ts';
 import { useAppTitle } from '@/features/navigation-bar/hooks/useAppTitle.ts';
 import { useChapterListOptions } from '@/features/chapter/utils/ChapterList.util.tsx';
+import { useMetadataServerSettings } from '@/features/settings/services/ServerSettingsMetadata.ts';
 import { FALLBACK_MANGA } from '@/features/manga/Manga.constants.ts';
 import {
     getReaderOverlayStore,
@@ -122,6 +123,10 @@ const BaseReader = ({
         request: defaultSettingsResponse,
     } = useDefaultReaderSettings();
     const chapterListOptions = useChapterListOptions(manga ?? FALLBACK_MANGA);
+    const {
+        settings: { shouldSkipDecimalChapters: shouldSkipDecimalChaptersGlobal },
+    } = useMetadataServerSettings();
+    const shouldSkipDecimalChapters = chapterListOptions.skipDecimalChapters ?? shouldSkipDecimalChaptersGlobal;
 
     const isLoading =
         currentChapter === undefined ||
@@ -186,6 +191,7 @@ const BaseReader = ({
         chapterForDuplicatesHandling,
         shouldSkipDupChapters,
         shouldSkipFilteredChapters,
+        shouldSkipDecimalChapters,
         chapterListOptions,
     );
 

@@ -373,6 +373,33 @@ export class Chapters {
         );
     }
 
+    /**
+     * Returns the passed chapters without skippable decimal chapters.
+     *
+     * A decimal chapter (e.g. 10.1, 10.5) is skippable in case its integer chapter (e.g. 10) exists in
+     * "scopeChapters".
+     *
+     * All passed chapters are expected to belong to the same manga.
+     */
+    static removeSkippableDecimalChapters<T extends ChapterIdInfo & ChapterNumberInfo>(
+        chapters: T[],
+        scopeChapters: ChapterNumberInfo[] = chapters,
+        keepChapterIds: ChapterIdInfo['id'][] = [],
+    ): T[] {
+        const integerChapterNumbers = new Set(
+            scopeChapters
+                .map(({ chapterNumber }) => chapterNumber)
+                .filter((chapterNumber) => Number.isInteger(chapterNumber)),
+        );
+
+        return chapters.filter(({ id, chapterNumber }) => {
+            const isDecimalChapter = chapterNumber >= 0 && !Number.isInteger(chapterNumber);
+            const isSkippable = isDecimalChapter && integerChapterNumbers.has(Math.floor(chapterNumber));
+
+            return !isSkippable || keepChapterIds.includes(id);
+        });
+    }
+
     static removeDuplicates<T extends ChapterIdInfo & ChapterScanlatorInfo & ChapterNumberInfo>(
         currentChapter: T,
         chapters: T[],

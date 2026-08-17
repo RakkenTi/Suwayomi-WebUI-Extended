@@ -101,6 +101,12 @@ export const APP_METADATA: Record<
             return coerceIn(value, DOWNLOAD_AHEAD.min, DOWNLOAD_AHEAD.max);
         },
     },
+    shouldSkipDecimalChapters: {
+        convert: convertToBoolean,
+    },
+    skipDecimalChapters: {
+        convert: convertToBooleanNullAndUndefined,
+    },
     showAddToLibraryCategorySelectDialog: {
         convert: convertToBoolean,
     },
@@ -427,6 +433,7 @@ export const GLOBAL_METADATA_KEYS: AppMetadataKeys[] = [
     'deleteChaptersManuallyMarkedRead',
     'deleteChaptersWhileReading',
     'deleteChaptersWithBookmark',
+    'shouldSkipDecimalChapters',
 
     // library
     'showAddToLibraryCategorySelectDialog',

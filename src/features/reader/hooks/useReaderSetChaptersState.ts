@@ -30,6 +30,7 @@ export const useReaderSetChaptersState = (
     chapterForDuplicatesHandling: ReaderStateChapters['chapterForDuplicatesHandling'],
     shouldSkipDupChapters: IReaderSettings['shouldSkipDupChapters'],
     shouldSkipFilteredChapters: IReaderSettings['shouldSkipFilteredChapters'],
+    shouldSkipDecimalChapters: boolean,
     chapterListOptions: ChapterListFilterOptions,
 ) => {
     const navigate = useNavigate();
@@ -57,8 +58,19 @@ export const useReaderSetChaptersState = (
             const uniqueChapters = shouldSkipDupChapters
                 ? Chapters.removeDuplicates(newChapterForDuplicatesHandling, filteredChapters)
                 : filteredChapters;
+            // never remove the currently open, the initial and the duplicate handling anchor chapter to not break
+            // the reader navigation
+            const chaptersWithoutSkippableDecimals = shouldSkipDecimalChapters
+                ? Chapters.removeSkippableDecimalChapters(
+                      uniqueChapters,
+                      mangaChapters ?? newMangaChapters,
+                      [newCurrentChapter?.id, newInitialChapter?.id, newChapterForDuplicatesHandling.id].filter(
+                          (id) => id !== undefined,
+                      ),
+                  )
+                : uniqueChapters;
 
-            return uniqueChapters.map((chapter) => getReaderChapterFromCache(chapter.id)!);
+            return chaptersWithoutSkippableDecimals.map((chapter) => getReaderChapterFromCache(chapter.id)!);
         })();
         const nextChapter =
             newCurrentChapter &&
@@ -115,6 +127,7 @@ export const useReaderSetChaptersState = (
         chapterSourceOrder,
         shouldSkipDupChapters,
         shouldSkipFilteredChapters,
+        shouldSkipDecimalChapters,
         finalInitialChapter,
         chapterListOptions,
     ]);

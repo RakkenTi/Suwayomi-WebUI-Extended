@@ -136,6 +136,17 @@ export const DownloadSettings = () => {
             <ListItemLink to={AppRoutes.settings.children.images.children.processingDownloads.path}>
                 <ListItemText primary={t`Image download processing`} />
             </ListItemLink>
+            <ListItem>
+                <ListItemText
+                    primary={t`Skip decimal chapters`}
+                    secondary={t`Do not select decimal chapters (e.g. 10.5) for downloads and the reader's next chapter navigation in case their chapter (e.g. 10) exists. Can be overridden per entry via its chapter list options`}
+                />
+                <Switch
+                    edge="end"
+                    checked={metadataSettings.shouldSkipDecimalChapters}
+                    onChange={(e) => updateMetadataSetting('shouldSkipDecimalChapters', e.target.checked)}
+                />
+            </ListItem>
             <List
                 subheader={
                     <ListSubheader component="div" id="download-settings-auto-delete-downloads">
