@@ -8,14 +8,17 @@
 
 import List from '@mui/material/List';
 import Stack from '@mui/material/Stack';
+import Button from '@mui/material/Button';
+import CircularProgress from '@mui/material/CircularProgress';
 import IconButton from '@mui/material/IconButton';
 import SortByAlphaIcon from '@mui/icons-material/SortByAlpha';
 import TagIcon from '@mui/icons-material/Tag';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import CancelIcon from '@mui/icons-material/Cancel';
 import TroubleshootIcon from '@mui/icons-material/Troubleshoot';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLingui } from '@lingui/react/macro';
 import { CustomTooltip } from '@/base/components/CustomTooltip.tsx';
 import { LoadingPlaceholder } from '@/base/components/feedback/LoadingPlaceholder.tsx';
@@ -38,6 +41,16 @@ import {
 } from '@/features/source/services/SourceHealthCheck.ts';
 import type { SourceIdInfo } from '@/features/source/Source.types.ts';
 import { OffsetComponent } from '@/base/OffsetComponent.tsx';
+import { requestManager } from '@/lib/requests/RequestManager.ts';
+import { MigrationManager } from '@/features/migration/MigrationManager.ts';
+import { ReactRouter } from '@/lib/react-router/ReactRouter.ts';
+import { AppRoutes } from '@/base/AppRoute.constants.ts';
+import { GET_MIGRATABLE_SOURCE_MANGAS } from '@/lib/graphql/manga/MangaQuery.ts';
+import type {
+    GetMigratableSourceMangasQuery,
+    GetMigratableSourceMangasQueryVariables,
+} from '@/lib/graphql/generated/graphql.ts';
+import { MangaOrderBy, SortOrder as GqlSortOrder } from '@/lib/graphql/generated/graphql-base.types.ts';
 
 export const MigrationSelectSource = () => {
     const { t } = useLingui();
@@ -106,6 +119,64 @@ export const MigrationSelectSource = () => {
         );
     };
 
+    const deadSources = useMemo(
+        () =>
+            migratableSources.filter(
+                (source) =>
+                    !Sources.isLocalSource(source) &&
+                    (!source.extension ||
+                        source.extension.isObsolete ||
+                        healthBySourceId[source.id]?.health === SourceHealth.UNREACHABLE ||
+                        healthBySourceId[source.id]?.health === SourceHealth.NO_RESULTS),
+            ),
+        [migratableSources, healthBySourceId],
+    );
+
+    const [isPreparingDeadSourceMigration, setIsPreparingDeadSourceMigration] = useState(false);
+
+    const migrateDeadSources = async () => {
+        if (MigrationManager.isActive()) {
+            makeToast(t`A migration is already in progress`, 'error');
+            return;
+        }
+
+        setIsPreparingDeadSourceMigration(true);
+        try {
+            const { data } = await requestManager.graphQLClient.client.query<
+                GetMigratableSourceMangasQuery,
+                GetMigratableSourceMangasQueryVariables
+            >({
+                query: GET_MIGRATABLE_SOURCE_MANGAS,
+                variables: {
+                    condition: { inLibrary: true },
+                    filter: { sourceId: { in: deadSources.map(({ id }) => id) } },
+                    order: [
+                        { by: MangaOrderBy.Title, byType: GqlSortOrder.Asc },
+                        { by: MangaOrderBy.InLibraryAt, byType: GqlSortOrder.Desc },
+                    ],
+                },
+                fetchPolicy: 'network-only',
+            });
+
+            const mangas = data?.mangas.nodes ?? [];
+            if (!mangas.length) {
+                return;
+            }
+
+            MigrationManager.selectSources(deadSources.map(({ id }) => id));
+            MigrationManager.selectMangas(mangas);
+
+            const isBulkMigration = mangas.length > 1;
+            if (isBulkMigration) {
+                ReactRouter.navigate(AppRoutes.migrate.path);
+            }
+        } catch (e) {
+            makeToast(t`Unable to load data`, 'error', getErrorMessage(e));
+        } finally {
+            setIsPreparingDeadSourceMigration(false);
+        }
+    };
+
     if (loading) {
         return <LoadingPlaceholder />;
     }
@@ -133,6 +204,18 @@ export const MigrationSelectSource = () => {
                         backgroundColor: 'background.default',
                     }}
                 >
+                    {!!deadSources.length && !isCheckingHealth && (
+                        <Button
+                            size="small"
+                            startIcon={
+                                isPreparingDeadSourceMigration ? <CircularProgress size={16} /> : <AutoFixHighIcon />
+                            }
+                            disabled={isPreparingDeadSourceMigration}
+                            onClick={migrateDeadSources}
+                        >
+                            {t`Migrate dead sources (${deadSources.length})`}
+                        </Button>
+                    )}
                     <CustomTooltip title={isCheckingHealth ? t`Stop health check` : t`Check source health`}>
                         <IconButton
                             color="inherit"

@@ -359,6 +359,7 @@ msgid "*: Active setting"
 msgstr "*: Active setting"
 
 #: src/features/manga/services/Mangas.ts
+#: src/features/migration/screens/MigrationSelectSource.tsx
 msgid "A migration is already in progress"
 msgstr "A migration is already in progress"
 
@@ -2568,6 +2569,11 @@ msgstr "Migrate"
 #: src/features/migration/MigrationManager.ts
 msgid "Migrate \"{0}\""
 msgstr "Migrate \"{0}\""
+
+#. placeholder {0}: deadSources.length
+#: src/features/migration/screens/MigrationSelectSource.tsx
+msgid "Migrate dead sources ({0})"
+msgstr "Migrate dead sources ({0})"
 
 #: src/features/migration/components/MigrationCard.tsx
 msgid "Migrate entries"
