@@ -457,6 +457,10 @@ msgstr "Age rating"
 msgid "All"
 msgstr "All"
 
+#: src/features/migration/screens/MigrationSelectSource.tsx
+msgid "All sources are reachable"
+msgstr "All sources are reachable"
+
 #: src/features/downloads/screens/DownloadSettings.tsx
 msgid "Allow deleting bookmarked chapters"
 msgstr "Allow deleting bookmarked chapters"
@@ -894,6 +898,10 @@ msgstr "Check for new cover and details when updating library"
 #: src/features/source/browse/screens/SourceMangas.tsx
 msgid "Check out"
 msgstr "Check out"
+
+#: src/features/migration/screens/MigrationSelectSource.tsx
+msgid "Check source health"
+msgstr "Check source health"
 
 #: src/features/app-updates/components/VersionInfo.tsx
 msgid "Checking for update"
@@ -2729,6 +2737,10 @@ msgstr "No match found"
 msgid "No pages found"
 msgstr "No pages found"
 
+#: src/features/migration/components/MigrationCard.tsx
+msgid "No results"
+msgstr "No results"
+
 #: src/features/migration/components/MigrationDestinationSourceList.tsx
 msgid "No sources available to migrate to"
 msgstr "No sources available to migrate to"
@@ -2749,6 +2761,10 @@ msgstr "No sources installed"
 #: src/features/settings/Settings.constants.ts
 msgid "None"
 msgstr "None"
+
+#: src/features/migration/components/MigrationCard.tsx
+msgid "Not installed"
+msgstr "Not installed"
 
 #: src/features/tracker/Tracker.constants.ts
 msgid "Not yet published"
@@ -2780,6 +2796,7 @@ msgstr "Number of unread chapters to download"
 
 #: src/features/browse/extensions/components/ExtensionCard.tsx
 #: src/features/extension/Extensions.constants.ts
+#: src/features/migration/components/MigrationCard.tsx
 msgid "Obsolete"
 msgstr "Obsolete"
 
@@ -2818,6 +2835,10 @@ msgstr "Offset double spreads"
 #: src/features/tracker/components/cards/TrackerActiveCard.tsx
 msgid "Ok"
 msgstr "Ok"
+
+#: src/features/migration/components/MigrationCard.tsx
+msgid "OK"
+msgstr "OK"
 
 #: src/features/tracker/Tracker.constants.ts
 msgid "Oneshot"
@@ -3604,6 +3625,10 @@ msgstr "SOCKS username"
 msgid "SOCKS version"
 msgstr "SOCKS version"
 
+#: src/features/migration/screens/MigrationSelectSource.tsx
+msgid "Some sources are broken or unreachable"
+msgstr "Some sources are broken or unreachable"
+
 #: src/base/components/feedback/ErrorBoundary.tsx
 msgid ""
 "Something went wrong\n"
@@ -3704,6 +3729,10 @@ msgstr "Stop"
 #: src/features/updates/components/UpdateChecker.tsx
 msgid "Stop global update"
 msgstr "Stop global update"
+
+#: src/features/migration/screens/MigrationSelectSource.tsx
+msgid "Stop health check"
+msgstr "Stop health check"
 
 #: src/features/reader/overlay/navigation/desktop/quick-settings/components/ReaderNavBarDesktopPageScale.tsx
 #: src/features/reader/settings/layout/components/ReaderSettingStretchPage.tsx
@@ -3816,6 +3845,14 @@ msgstr "The cache of the client (browser, electron) should get cleared alongside
 #: src/features/library/screens/Library.tsx
 msgid "The category is empty"
 msgstr "The category is empty"
+
+#: src/features/migration/components/MigrationCard.tsx
+msgid "The extension of this source is not installed"
+msgstr "The extension of this source is not installed"
+
+#: src/features/migration/components/MigrationCard.tsx
+msgid "The extension of this source was removed from its repo"
+msgstr "The extension of this source was removed from its repo"
 
 #: src/features/backup/component/BackupValidationDialog.tsx
 msgid "The following sources are not installed:"
@@ -4090,6 +4127,10 @@ msgstr "Unknown source"
 #: src/features/browse/sources/components/SourceCard.tsx
 msgid "Unpin source"
 msgstr "Unpin source"
+
+#: src/features/migration/components/MigrationCard.tsx
+msgid "Unreachable"
+msgstr "Unreachable"
 
 #: src/features/chapter/components/actions/ChaptersDownloadActionMenuItems.tsx
 #: src/features/chapter/components/ChapterOptions.tsx

@@ -65,6 +65,11 @@ export const GET_MIGRATABLE_SOURCES = gql`
                 sourceId
                 source {
                     ...SOURCE_BASE_FIELDS
+
+                    extension {
+                        pkgName
+                        isObsolete
+                    }
                 }
             }
         }

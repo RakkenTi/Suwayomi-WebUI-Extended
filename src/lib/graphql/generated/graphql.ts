@@ -4307,6 +4307,7 @@ export type GetMigratableSourcesQuery = {
                 displayName: string;
                 lang: string;
                 iconUrl: string;
+                extension: { __typename: 'ExtensionType'; pkgName: string; isObsolete: boolean };
             } | null;
         }>;
     };
