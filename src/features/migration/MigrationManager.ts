@@ -26,22 +26,11 @@ import {
 import {
     DEFAULT_MIGRATION_STATE,
     MAX_MANGAS_IN_PARALLEL,
-    MAX_SOURCES_IN_PARALLEL,
     MIGRATE_EXECUTE_ENTRY_GROUP_EXPAND_DEFAULT_STATE,
     MIGRATE_SEARCH_ENTRY_GROUP_EXPAND_DEFAULT_STATE,
     MIGRATION_LOCAL_STORAGE_KEY,
 } from '@/features/migration/Migration.constants.ts';
-import { requestManager } from '@/lib/requests/RequestManager.ts';
-import { GET_MIGRATION_SOURCE_MANGAS_FETCH } from '@/lib/graphql/source/SourceMutation.ts';
-import type {
-    GetMigrationSourceMangasFetchMutation,
-    GetMigrationSourceMangasFetchMutationVariables,
-    GetServerSettingsQuery,
-    GetServerSettingsQueryVariables,
-    MangaMigrationFieldsFragment,
-} from '@/lib/graphql/generated/graphql.ts';
-import { FetchSourceMangaType } from '@/lib/graphql/generated/graphql-base.types.ts';
-import { GET_SERVER_SETTINGS } from '@/lib/graphql/settings/SettingsQuery.ts';
+import type { MangaMigrationFieldsFragment } from '@/lib/graphql/generated/graphql.ts';
 import { MangaMigration } from '@/features/migration/MangaMigration.ts';
 import type {
     MangaArtistInfo,
@@ -55,20 +44,19 @@ import type {
     MangaTitleInfo,
 } from '@/features/manga/Manga.types.ts';
 import type { SourceIdInfo } from '@/features/source/Source.types.ts';
+import { searchSourceForMangaTitle, SourceRequestQueue } from '@/features/source/services/SourceMangaSearch.ts';
 import { assertIsDefined } from '@/base/Asserts.ts';
 import { ReactRouter } from '@/lib/react-router/ReactRouter.ts';
 import { AppRoutes } from '@/base/AppRoute.constants.ts';
 import { Confirmation } from '@/base/AppAwaitableComponent.ts';
 import { defaultPromiseErrorHandler } from '@/lib/DefaultPromiseErrorHandler.ts';
 import { t } from '@lingui/core/macro';
-import { enhancedCleanup } from '@/base/utils/Strings.ts';
 import { BrowseTab } from '@/features/browse/Browse.types.ts';
 import { Mangas } from '@/features/manga/services/Mangas.ts';
 import { MANGA_MIGRATION_FIELDS } from '@/lib/graphql/manga/MangaFragments.ts';
 import { ZustandUtil } from '@/lib/zustand/ZustandUtil.ts';
 import { getErrorMessage } from '@/lib/HelperFunctions.ts';
 import isEqual from 'lodash/fp/isEqual';
-import uniqBy from 'lodash/fp/uniqBy';
 import { MigrationEntries } from '@/features/migration/MigrationEntries.ts';
 import { Chapters } from '@/features/chapter/services/Chapters.ts';
 import { AppSession } from '@/base/AppSession.ts';
@@ -116,8 +104,6 @@ export class MigrationManager {
     private static abortController: AbortController | null = null;
 
     private static mangaProcessQueue = pLimit(MAX_MANGAS_IN_PARALLEL);
-    private static parallelSourcesQueue: LimitFunction | undefined;
-    private static queueBySource = new Map<SourceIdInfo['id'], LimitFunction>();
     private static abortControllerByManga = new Map<MangaIdInfo['id'], AbortController>();
 
     private static abortAndResetAbortController(reason: unknown): void {
@@ -141,37 +127,11 @@ export class MigrationManager {
     }
 
     private static getParallelSourceQueue(): LimitFunction {
-        if (MigrationManager.parallelSourcesQueue) {
-            return MigrationManager.parallelSourcesQueue;
-        }
-
-        try {
-            const result = requestManager.graphQLClient.client.readQuery<
-                GetServerSettingsQuery,
-                GetServerSettingsQueryVariables
-            >({
-                query: GET_SERVER_SETTINGS,
-            });
-
-            MigrationManager.parallelSourcesQueue = pLimit(
-                result?.settings.maxSourcesInParallel ?? MAX_SOURCES_IN_PARALLEL,
-            );
-        } catch (error) {
-            MigrationManager.parallelSourcesQueue = pLimit(MAX_SOURCES_IN_PARALLEL);
-        }
-
-        return MigrationManager.parallelSourcesQueue!;
+        return SourceRequestQueue.getParallelSourceQueue();
     }
 
     private static getOrCreateSourceQueue(sourceId: SourceIdInfo['id']): LimitFunction {
-        if (this.queueBySource.has(sourceId)) {
-            return this.queueBySource.get(sourceId)!;
-        }
-
-        const queue = pLimit(1);
-        this.queueBySource.set(sourceId, queue);
-
-        return queue;
+        return SourceRequestQueue.getSourceQueue(sourceId);
     }
 
     static async confirmAbort(): Promise<boolean> {
@@ -804,88 +764,10 @@ export class MigrationManager {
             throw new Error('Entry already has a selected match from a higher priority source');
         }
 
-        const searchQueries = performAdvancedSearch
-            ? [
-                  mangaTitle,
-                  ...enhancedCleanup(mangaTitle)
-                      .split(' ')
-                      .filter((query) => query.length >= 3),
-              ]
-            : [mangaTitle];
-
-        const searchRequests = searchQueries.map((query) =>
-            MigrationManager.getOrCreateSourceQueue(sourceId)(() =>
-                requestManager.graphQLClient.client.mutate<
-                    GetMigrationSourceMangasFetchMutation,
-                    GetMigrationSourceMangasFetchMutationVariables
-                >({
-                    mutation: GET_MIGRATION_SOURCE_MANGAS_FETCH,
-                    variables: {
-                        input: {
-                            source: sourceId,
-                            query,
-                            page: 1,
-                            type: FetchSourceMangaType.Search,
-                        },
-                    },
-                    context: { fetchOptions: { signal } },
-                }),
-            ),
-        );
-
-        const searchResponses = await Promise.allSettled(searchRequests);
-        const successfulSearchResponses = searchResponses
-            .filter((response) => response.status === 'fulfilled')
-            .map((response) => response.value);
-
-        if (!successfulSearchResponses.length) {
-            const failureReasons = searchResponses.map((response) => (response as PromiseRejectedResult).reason);
-
-            throw new Error(`Search failed due to:${failureReasons.join('\n\n')}`);
-        }
-
-        const searchResults = successfulSearchResponses.flatMap(
-            (response) => response?.data?.fetchSourceManga?.mangas ?? [],
-        );
-        const uniqueSearchResults = uniqBy('id', searchResults);
-        const matches = uniqueSearchResults.filter(
-            (searchMatch) =>
-                searchMatch.id !== mangaId && enhancedCleanup(searchMatch.title) === enhancedCleanup(mangaTitle),
-        );
-
-        const matchUpdatePromises = matches.map(async (match) => {
-            signal.throwIfAborted();
-
-            return (async () => {
-                try {
-                    const updatedMatch = await MigrationManager.getOrCreateSourceQueue(sourceId)(
-                        () =>
-                            requestManager.refreshManga(match.id, {
-                                awaitRefetchQueries: true,
-                                context: { fetchOptions: { signal } },
-                            }).response,
-                    );
-
-                    if (updatedMatch.data?.fetchMangaAndChapters?.manga) {
-                        return {
-                            manga: updatedMatch.data.fetchMangaAndChapters.manga,
-                            chapters: updatedMatch.data.fetchMangaAndChapters?.chapters ?? null,
-                        };
-                    }
-                } catch (e) {
-                    // ignore
-                }
-
-                return {
-                    manga: match,
-                    chapters: null,
-                };
-            })();
+        return searchSourceForMangaTitle(sourceId, mangaTitle, signal, {
+            performAdvancedSearch,
+            excludeMangaId: mangaId,
         });
-
-        const updatedMatches = await Promise.all(matchUpdatePromises);
-
-        return updatedMatches;
     }
 
     private static updateEntrySearchState(

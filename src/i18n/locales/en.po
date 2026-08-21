@@ -26,8 +26,10 @@ msgid "\"{0}\" ({1}) no longer exists at the source"
 msgstr "\"{0}\" ({1}) no longer exists at the source"
 
 #. placeholder {0}: selectedChapters.length
+#. placeholder {0}: settings.staleSourceMinChapterDelta
 #. placeholder {0}: visibleChapters.length
 #: src/features/chapter/components/ChapterList.tsx
+#: src/features/stale-sources/components/StaleSourceSettings.tsx
 msgid "{0, plural, one {# chapter} other {# chapters}}"
 msgstr "{0, plural, one {# chapter} other {# chapters}}"
 
@@ -37,9 +39,24 @@ msgid "{0, plural, one {# Chapter} other {# Chapters}}"
 msgstr "{0, plural, one {# Chapter} other {# Chapters}}"
 
 #. placeholder {0}: backupSettings.backupInterval
+#. placeholder {0}: settings.staleSourceRecheckDays
+#. placeholder {0}: settings.staleSourceSilentDays
 #: src/features/backup/screens/Backup.tsx
+#: src/features/stale-sources/components/StaleSourceSettings.tsx
 msgid "{0, plural, one {# day} other {# days}}"
 msgstr "{0, plural, one {# day} other {# days}}"
+
+#. placeholder {0}: behind.length
+#. placeholder {0}: entriesBehind.length
+#: src/features/stale-sources/components/StaleSourceToolbarButton.tsx
+#: src/features/stale-sources/screens/StaleSources.tsx
+msgid "{0, plural, one {# entry is behind another source} other {# entries are behind another source}}"
+msgstr "{0, plural, one {# entry is behind another source} other {# entries are behind another source}}"
+
+#. placeholder {0}: settings.staleSourceChecksPerDay
+#: src/features/stale-sources/components/StaleSourceSettings.tsx
+msgid "{0, plural, one {# entry} other {# entries}}"
+msgstr "{0, plural, one {# entry} other {# entries}}"
 
 #. placeholder {0}: selectedItemIds.length
 #: src/features/library/screens/Library.tsx
@@ -145,6 +162,12 @@ msgstr "{0} / {1}"
 msgid "{0} / {1}{2}"
 msgstr "{0} / {1}{2}"
 
+#. placeholder {0}: match.sourceName
+#. placeholder {1}: match.latestChapterNumber
+#: src/features/stale-sources/components/StaleSourceEntryCard.tsx
+msgid "{0}: chapter {1}"
+msgstr "{0}: chapter {1}"
+
 #. placeholder {0}: updateStatus.progress
 #: src/features/app-updates/components/WebUIUpdateChecker.tsx
 msgid "{0}% | Updating…"
@@ -157,6 +180,11 @@ msgstr "{availableUpdates, plural, one {# update available} other {# updates ava
 #: src/features/library/screens/LibrarySettings.tsx
 msgid "{categoryCount, plural, one {# category} other {# categories}}"
 msgstr "{categoryCount, plural, one {# category} other {# categories}}"
+
+#. placeholder {0}: mangas.length
+#: src/features/stale-sources/screens/StaleSources.tsx
+msgid "{checkedCount} of {0} entries checked · {candidateCount} due · {remainingBudget} checks left today"
+msgstr "{checkedCount} of {0} entries checked · {candidateCount} due · {remainingBudget} checks left today"
 
 #: src/features/manga/Manga.constants.ts
 msgid "{count, plural, one {Changed categories of manga} other {Changed categories of # manga}}"
@@ -348,6 +376,14 @@ msgstr "{missingChapterCount, plural, one {Missing # chapter} other {Missing # c
 msgid "{otherResultsCount, plural, one {# more match} other {# more matches}}"
 msgstr "{otherResultsCount, plural, one {# more match} other {# more matches}}"
 
+#: src/features/stale-sources/components/StaleSourceEntryCard.tsx
+msgid "{ownSourceName}: chapter {ownChapter}"
+msgstr "{ownSourceName}: chapter {ownChapter}"
+
+#: src/features/stale-sources/components/StaleSourceEntryCard.tsx
+msgid "{ownSourceName}: no chapters"
+msgstr "{ownSourceName}: no chapters"
+
 #: src/features/app-updates/components/VersionInfo.tsx
 msgid "{progress}% | Updating…"
 msgstr "{progress}% | Updating…"
@@ -489,6 +525,11 @@ msgstr "Alpha"
 #: src/features/tracker/components/cards/TrackerActiveCard.tsx
 msgid "Also remove from {0}"
 msgstr "Also remove from {0}"
+
+#: src/features/manga/components/MangaBadges.tsx
+#: src/features/stale-sources/StaleSources.constants.ts
+msgid "Another source is ahead"
+msgstr "Another source is ahead"
 
 #: src/features/settings/screens/Appearance.tsx
 #: src/features/settings/screens/Settings.tsx
@@ -652,6 +693,14 @@ msgstr "Basic Authentication"
 #: src/features/reader/settings/ReaderSettings.constants.tsx
 msgid "Behaviour"
 msgstr "Behaviour"
+
+#: src/features/manga/components/MangaBadges.tsx
+msgid "Behind"
+msgstr "Behind"
+
+#: src/features/library/components/LibraryOptionsPanel.tsx
+msgid "Behind another source"
+msgstr "Behind another source"
 
 #: src/features/settings/Settings.constants.ts
 msgid "Binary"
@@ -883,16 +932,33 @@ msgid "Chapter transition warning"
 msgstr "Chapter transition warning"
 
 #: src/features/backup/Backup.constants.ts
+#: src/features/stale-sources/components/StaleSourceSettings.tsx
 msgid "Chapters"
 msgstr "Chapters"
+
+#: src/features/stale-sources/components/StaleSourceEntryCard.tsx
+msgid "Check again"
+msgstr "Check again"
 
 #: src/features/library/screens/LibraryDuplicates.tsx
 msgid "Check description"
 msgstr "Check description"
 
+#: src/features/stale-sources/StaleSources.constants.ts
+msgid "Check failed"
+msgstr "Check failed"
+
 #: src/features/settings/components/globalUpdate/GlobalUpdateSettings.tsx
 msgid "Check for new cover and details when updating library"
 msgstr "Check for new cover and details when updating library"
+
+#: src/features/stale-sources/components/StaleSourceSettings.tsx
+msgid "Check for stale sources"
+msgstr "Check for stale sources"
+
+#: src/features/stale-sources/screens/StaleSources.tsx
+msgid "Check now"
+msgstr "Check now"
 
 #: src/features/source/browse/screens/SourceMangas.tsx
 msgid "Check out"
@@ -902,9 +968,33 @@ msgstr "Check out"
 msgid "Check source health"
 msgstr "Check source health"
 
+#. placeholder {0}: getDateString(result.checkedAt, true)
+#. placeholder {1}: result.checkedSourceIds.length
+#: src/features/stale-sources/components/StaleSourceEntryCard.tsx
+msgid "Checked {0} · {1} sources"
+msgstr "Checked {0} · {1} sources"
+
+#. placeholder {0}: activeMangaTitle ?? ''
+#. placeholder {1}: progress.completed
+#. placeholder {2}: progress.total
+#: src/features/stale-sources/screens/StaleSources.tsx
+msgid "Checking {0} ({1}/{2})"
+msgstr "Checking {0} ({1}/{2})"
+
 #: src/features/app-updates/components/VersionInfo.tsx
 msgid "Checking for update"
 msgstr "Checking for update"
+
+#. placeholder {0}: progress.completed
+#. placeholder {1}: progress.total
+#: src/features/stale-sources/components/StaleSourceCheckIndicator.tsx
+msgid "Checking sources ({0}/{1})"
+msgstr "Checking sources ({0}/{1})"
+
+#. placeholder {0}: failed.length
+#: src/features/stale-sources/screens/StaleSources.tsx
+msgid "Checks that failed ({0})"
+msgstr "Checks that failed ({0})"
 
 #: src/features/settings/screens/ServerSettings.tsx
 msgid "Choose the order in which chapters are displayed."
@@ -1213,6 +1303,7 @@ msgid "Could not retry failed downloads"
 msgstr "Could not retry failed downloads"
 
 #: src/features/settings/screens/Appearance.tsx
+#: src/features/stale-sources/screens/StaleSources.tsx
 msgid "Could not save changes"
 msgstr "Could not save changes"
 
@@ -1225,6 +1316,10 @@ msgstr "Could not save the default search settings to the server"
 #: src/features/reader/services/ReaderService.ts
 msgid "Could not save the reader settings to the server"
 msgstr "Could not save the reader settings to the server"
+
+#: src/features/stale-sources/components/StaleSourceSettings.tsx
+msgid "Could not save the settings to the server"
+msgstr "Could not save the settings to the server"
 
 #: src/features/theme/components/CreateThemeDialog.tsx
 msgid "Could not save theme changes"
@@ -1375,6 +1470,10 @@ msgstr "Database url"
 msgid "Day"
 msgstr "Day"
 
+#: src/features/stale-sources/components/StaleSourceSettings.tsx
+msgid "Days"
+msgstr "Days"
+
 #: src/features/settings/screens/About.tsx
 msgid "Debug information"
 msgstr "Debug information"
@@ -1499,6 +1598,10 @@ msgstr "Disconnected"
 #: src/features/settings/screens/About.tsx
 msgid "Discord"
 msgstr "Discord"
+
+#: src/features/stale-sources/components/StaleSourceEntryCard.tsx
+msgid "Dismiss result"
+msgstr "Dismiss result"
 
 #: src/base/components/GridLayouts.tsx
 #: src/features/chapter/components/ChapterOptions.tsx
@@ -1672,6 +1775,14 @@ msgstr "Enable page read progress"
 msgid "Enable the WebView via CEF (Chromium)"
 msgstr "Enable the WebView via CEF (Chromium)"
 
+#: src/features/stale-sources/components/StaleSourceSettings.tsx
+msgid "Entries"
+msgstr "Entries"
+
+#: src/features/stale-sources/screens/StaleSources.tsx
+msgid "Entries are checked a few at a time once they have been silent for a while."
+msgstr "Entries are checked a few at a time once they have been silent for a while."
+
 #: src/features/downloads/screens/DownloadSettings.tsx
 msgid "Entries in excluded categories will not be downloaded even if they are also in included categories"
 msgstr "Entries in excluded categories will not be downloaded even if they are also in included categories"
@@ -1679,6 +1790,10 @@ msgstr "Entries in excluded categories will not be downloaded even if they are a
 #: src/features/settings/components/globalUpdate/GlobalUpdateSettings.tsx
 msgid "Entries in excluded categories will not be updated even if they are also in included categories"
 msgstr "Entries in excluded categories will not be updated even if they are also in included categories"
+
+#: src/features/stale-sources/components/StaleSourceSettings.tsx
+msgid "Entries per day"
+msgstr "Entries per day"
 
 #. placeholder {0}: entry.mangaTitle
 #. placeholder {1}: entry.mangaId
@@ -2032,9 +2147,21 @@ msgstr "Horizontal"
 msgid "Hotkey already exists"
 msgstr "Hotkey already exists"
 
+#: src/features/stale-sources/components/StaleSourceSettings.tsx
+msgid "How long a checked entry is left alone before it is checked again."
+msgstr "How long a checked entry is left alone before it is checked again."
+
+#: src/features/stale-sources/components/StaleSourceSettings.tsx
+msgid "How many chapters another source has to be ahead by before the entry is reported. Raising this hides false positives caused by sources numbering chapters differently."
+msgstr "How many chapters another source has to be ahead by before the entry is reported. Raising this hides false positives caused by sources numbering chapters differently."
+
 #: src/features/downloads/components/DownloadAheadSetting.tsx
 msgid "How many chapters should get downloaded while reading."
 msgstr "How many chapters should get downloaded while reading."
+
+#: src/features/stale-sources/components/StaleSourceSettings.tsx
+msgid "How many entries may be checked within 24 hours. Every checked entry is searched in each of your library's other sources, so a high value means a lot of source requests."
+msgstr "How many entries may be checked within 24 hours. Every checked entry is searched in each of your library's other sources, so a high value means a lot of source requests."
 
 #: src/features/settings/screens/ServerSettings.tsx
 msgid "How much time FlareSolverr has to handle the request"
@@ -2043,6 +2170,11 @@ msgstr "How much time FlareSolverr has to handle the request"
 #: src/features/app-updates/components/VersionUpdateInfoDialog.tsx
 msgid "Ignore"
 msgstr "Ignore"
+
+#. placeholder {0}: result.match.sourceName
+#: src/features/stale-sources/components/StaleSourceEntryCard.tsx
+msgid "Ignore \"{0}\""
+msgstr "Ignore \"{0}\""
 
 #: src/features/downloads/screens/DownloadSettings.tsx
 msgid "Ignore automatic chapter downloads for entries with unread chapters"
@@ -2498,6 +2630,10 @@ msgstr "Mark as unread"
 msgid "Mark chapters as read on download"
 msgstr "Mark chapters as read on download"
 
+#: src/features/stale-sources/components/StaleSourceSettings.tsx
+msgid "Mark library entries that are behind another source"
+msgstr "Mark library entries that are behind another source"
+
 #: src/features/chapter/components/actions/ChapterActionMenuItems.tsx
 msgid "Mark previous as read"
 msgstr "Mark previous as read"
@@ -2547,12 +2683,14 @@ msgstr "Merging"
 #: src/features/manga/Manga.constants.ts
 #: src/features/migration/components/MigrationOptionsDialog.tsx
 #: src/features/migration/screens/MigrationSelectMangas.tsx
+#: src/features/stale-sources/components/StaleSourceEntryCard.tsx
 msgid "Migrate"
 msgstr "Migrate"
 
 #. placeholder {0}: manga.title
 #: src/features/manga/components/MangaToolbarMenu.tsx
 #: src/features/migration/MigrationManager.ts
+#: src/features/stale-sources/components/StaleSourceEntryCard.tsx
 msgid "Migrate \"{0}\""
 msgstr "Migrate \"{0}\""
 
@@ -2679,6 +2817,10 @@ msgstr "Name"
 msgid "Never"
 msgstr "Never"
 
+#: src/features/stale-sources/components/StaleSourceEntryCard.tsx
+msgid "Never report or search this source for this entry"
+msgstr "Never report or search this source for this entry"
+
 #: src/features/category/components/CreateOrEditCategoryDialog.tsx
 msgid "New category"
 msgstr "New category"
@@ -2713,6 +2855,10 @@ msgstr "No chapters matching filter"
 msgid "No downloads"
 msgstr "No downloads"
 
+#: src/features/stale-sources/screens/StaleSources.tsx
+msgid "No entry has been checked yet"
+msgstr "No entry has been checked yet"
+
 #: src/features/global-search/screens/SearchAll.tsx
 #: src/features/manga/components/MangaGrid.tsx
 #: src/features/source/browse/screens/SourceMangas.tsx
@@ -2729,6 +2875,15 @@ msgstr "No manga matches this filter"
 msgid "No match found"
 msgstr "No match found"
 
+#. placeholder {0}: noMatch.length
+#: src/features/stale-sources/screens/StaleSources.tsx
+msgid "No other source has the entry ({0})"
+msgstr "No other source has the entry ({0})"
+
+#: src/features/stale-sources/StaleSources.constants.ts
+msgid "No other source has this entry"
+msgstr "No other source has this entry"
+
 #: src/features/reader/viewer/ReaderChapterViewer.tsx
 msgid "No pages found"
 msgstr "No pages found"
@@ -2736,6 +2891,10 @@ msgstr "No pages found"
 #: src/features/migration/components/MigrationCard.tsx
 msgid "No results"
 msgstr "No results"
+
+#: src/features/stale-sources/StaleSources.constants.ts
+msgid "No source is ahead"
+msgstr "No source is ahead"
 
 #: src/features/migration/components/MigrationDestinationSourceList.tsx
 msgid "No sources available to migrate to"
@@ -2852,6 +3011,10 @@ msgstr "Only automatically select matches that have more chapters than the curre
 msgid "Only automatically select matches whose chapter list has no gaps after the current read progress (gaps in already read chapters do not matter)"
 msgstr "Only automatically select matches whose chapter list has no gaps after the current read progress (gaps in already read chapters do not matter)"
 
+#: src/features/stale-sources/components/StaleSourceSettings.tsx
+msgid "Only entries whose newest chapter is at least this old become candidates. Entries without any chapter are always checked."
+msgstr "Only entries whose newest chapter is at least this old become candidates. Entries without any chapter are always checked."
+
 #: src/features/migration/Migration.constants.ts
 msgid "Only outdated matches found"
 msgstr "Only outdated matches found"
@@ -2961,6 +3124,10 @@ msgstr "Pending…"
 msgid "Percentage Tolerance"
 msgstr "Percentage Tolerance"
 
+#: src/features/stale-sources/components/StaleSourceSettings.tsx
+msgid "Periodically search other sources for entries that stopped receiving chapters. Runs on this device while the WebUI is open and sends requests to your sources."
+msgstr "Periodically search other sources for entries that stopped receiving chapters. Runs on this device while the WebUI is open and sends requests to your sources."
+
 #: src/features/migration/components/MigrationBulkSearchOptionsDialog.tsx
 msgid "Pick the match that is furthest ahead"
 msgstr "Pick the match that is furthest ahead"
@@ -3062,6 +3229,10 @@ msgstr "Quick settings"
 #: src/features/library/components/LibraryOptionsPanel.tsx
 msgid "Random"
 msgstr "Random"
+
+#: src/features/stale-sources/components/StaleSourceSettings.tsx
+msgid "Re-check after"
+msgstr "Re-check after"
 
 #. placeholder {0}: chapter.name
 #. placeholder {1}: manga.title
@@ -3173,6 +3344,10 @@ msgstr "Remove selected from the library"
 #: src/features/library/screens/LibrarySettings.tsx
 msgid "Removed non library manga from categories"
 msgstr "Removed non library manga from categories"
+
+#: src/features/stale-sources/components/StaleSourceSettings.tsx
+msgid "Report when ahead by"
+msgstr "Report when ahead by"
 
 #: src/features/migration/components/MigrationBulkSearchOptionsDialog.tsx
 msgid "Require at least the same latest chapter"
@@ -3519,9 +3694,17 @@ msgstr "Show"
 msgid "Show all duplicated entries in your library"
 msgstr "Show all duplicated entries in your library"
 
+#: src/features/stale-sources/components/StaleSourceSettings.tsx
+msgid "Show badge"
+msgstr "Show badge"
+
 #: src/features/library/components/LibraryOptionsPanel.tsx
 msgid "Show continue reading button"
 msgstr "Show continue reading button"
+
+#: src/features/stale-sources/components/StaleSourceSettings.tsx
+msgid "Show entries that are behind another source"
+msgstr "Show entries that are behind another source"
 
 #: src/features/manga/components/cards/MangaCard.tsx
 #: src/features/manga/hooks/useManageMangaLibraryState.tsx
@@ -3595,6 +3778,15 @@ msgstr "Shows a dialog in case the version got updated. This dialog will be show
 #: src/features/settings/screens/ServerSettings.tsx
 msgid "Shows a dialog in case the version of the server has changed"
 msgstr "Shows a dialog in case the version of the server has changed"
+
+#: src/features/stale-sources/components/StaleSourceSettings.tsx
+msgid "Silent for"
+msgstr "Silent for"
+
+#. placeholder {0}: silentEverywhere.length
+#: src/features/stale-sources/screens/StaleSources.tsx
+msgid "Silent on every source ({0})"
+msgstr "Silent on every source ({0})"
 
 #: src/features/settings/Settings.constants.ts
 msgid "Simple Login"
@@ -3697,6 +3889,10 @@ msgstr "Source Configuration"
 msgid "Source entry — {sourceTitle}"
 msgstr "Source entry — {sourceTitle}"
 
+#: src/features/stale-sources/StaleSources.constants.ts
+msgid "Source has no chapters"
+msgstr "Source has no chapters"
+
 #: src/features/chapter/components/ChapterOptions.tsx
 msgid "Source title"
 msgstr "Source title"
@@ -3708,6 +3904,16 @@ msgstr "Sources"
 #: src/features/settings/Settings.constants.ts
 msgid "Stable"
 msgstr "Stable"
+
+#: src/features/stale-sources/screens/StaleSources.tsx
+msgid "Stale source check failed"
+msgstr "Stale source check failed"
+
+#: src/features/stale-sources/components/StaleSourceSettings.tsx
+#: src/features/stale-sources/components/StaleSourceToolbarButton.tsx
+#: src/features/stale-sources/screens/StaleSources.tsx
+msgid "Stale sources"
+msgstr "Stale sources"
 
 #: src/features/reader/overlay/progress-bar/settings/components/ReaderSettingProgressBarType.tsx
 msgid "Standard"
@@ -3764,6 +3970,10 @@ msgstr "Status"
 #: src/features/downloads/screens/DownloadQueue.tsx
 msgid "Stop"
 msgstr "Stop"
+
+#: src/features/stale-sources/screens/StaleSources.tsx
+msgid "Stop check"
+msgstr "Stop check"
 
 #: src/features/updates/components/UpdateChecker.tsx
 msgid "Stop global update"
@@ -3955,6 +4165,10 @@ msgstr ""
 "Previous: {nextScanlator}\n"
 "Current: {currentScanlator}"
 
+#: src/features/stale-sources/screens/StaleSources.tsx
+msgid "The rolling check is disabled. Enable it in the library settings or start a check manually."
+msgstr "The rolling check is disabled. Enable it in the library settings or start a check manually."
+
 #: src/features/theme/components/CreateThemeDialog.tsx
 msgid "The theme name must be unique and has a limit of 16 characters"
 msgstr "The theme name must be unique and has a limit of 16 characters"
@@ -4121,6 +4335,7 @@ msgstr "UI Login"
 #: src/features/settings/screens/WebUISettings.tsx
 #: src/features/source/browse/screens/SourceMangas.tsx
 #: src/features/source/configuration/screens/SourceConfigure.tsx
+#: src/features/stale-sources/screens/StaleSources.tsx
 #: src/features/theme/components/CreateThemeDialog.tsx
 #: src/features/theme/components/ThemeList.tsx
 #: src/features/tracker/components/TrackerSearch.tsx
