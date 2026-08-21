@@ -17,11 +17,14 @@ import { ZustandUtil } from '@/lib/zustand/ZustandUtil.ts';
 import { searchSourceForMangaTitle, SourceRequestQueue } from '@/features/source/services/SourceMangaSearch.ts';
 import type { SourceIdInfo } from '@/features/source/Source.types.ts';
 import type { MangaIdInfo } from '@/features/manga/Manga.types.ts';
+import type { ChapterListFieldsFragment } from '@/lib/graphql/generated/graphql.ts';
+import { Chapters } from '@/features/chapter/services/Chapters.ts';
 import type {
     MetadataStaleSourceSettings,
     StaleSourceCheckableManga,
     StaleSourceCheckResult,
     StaleSourceMatch,
+    StaleSourceOwnStats,
     StaleSourceProgress,
 } from '@/features/stale-sources/StaleSources.types.ts';
 import { StaleSourceVerdict } from '@/features/stale-sources/StaleSources.types.ts';
@@ -68,6 +71,12 @@ const checkerStore = create<StaleSourceCheckerState>()(devtools(immer(() => ({ .
 const useCheckerStore = ZustandUtil.createStoreHook(checkerStore);
 
 const toDays = (days: number): number => d(days).days.inWholeMilliseconds;
+
+const getLatestUploadDate = (chapters: ChapterListFieldsFragment[] | null | undefined): number | null => {
+    const uploadDates = (chapters ?? []).map((chapter) => Number(chapter.uploadDate ?? 0)).filter(Boolean);
+
+    return uploadDates.length ? Math.max(...uploadDates) : null;
+};
 
 /**
  * Rolling check for library entries whose source stopped receiving chapters.
@@ -210,7 +219,7 @@ export class StaleSourceChecker {
     private static async refreshOwnEntry(
         manga: StaleSourceCheckableManga,
         signal: AbortSignal,
-    ): Promise<number | null> {
+    ): Promise<StaleSourceOwnStats> {
         try {
             const response = await SourceRequestQueue.getSourceQueue(manga.sourceId)(
                 () =>
@@ -221,15 +230,26 @@ export class StaleSourceChecker {
             );
 
             const refreshedManga = response.data?.fetchMangaAndChapters?.manga;
+            const refreshedChapters = response.data?.fetchMangaAndChapters?.chapters;
 
             if (refreshedManga) {
-                return refreshedManga.highestNumberedChapter?.chapterNumber ?? null;
+                return {
+                    latestChapterNumber: refreshedManga.highestNumberedChapter?.chapterNumber ?? null,
+                    chapterCount: refreshedChapters?.length ?? refreshedManga.chapters.totalCount,
+                    latestUploadDate: getLatestUploadDate(refreshedChapters),
+                };
             }
         } catch (e) {
-            // the entry's own source being unreachable is itself a finding - fall back to the stored chapter number
+            // the entry's own source being unreachable is itself a finding - fall back to the stored state
         }
 
-        return manga.highestNumberedChapter?.chapterNumber ?? null;
+        return {
+            latestChapterNumber: manga.highestNumberedChapter?.chapterNumber ?? null,
+            chapterCount: manga.chapters.totalCount,
+            latestUploadDate: manga.latestUploadedChapter?.uploadDate
+                ? Number(manga.latestUploadedChapter.uploadDate)
+                : null,
+        };
     }
 
     /**
@@ -243,7 +263,9 @@ export class StaleSourceChecker {
     ): Promise<StaleSourceCheckResult> {
         signal.throwIfAborted();
 
-        const ownLatestChapterNumber = await StaleSourceChecker.refreshOwnEntry(manga, signal);
+        const own = await StaleSourceChecker.refreshOwnEntry(manga, signal);
+        const ownLatestChapterNumber = own.latestChapterNumber;
+        const latestReadChapterNumber = manga.latestReadChapter?.chapterNumber ?? 0;
 
         const searchResults = await Promise.allSettled(
             destinationSourceIds.map((sourceId) =>
@@ -272,7 +294,9 @@ export class StaleSourceChecker {
                 checkedAt: Date.now(),
                 verdict: StaleSourceVerdict.FAILED,
                 latestChapterNumber: ownLatestChapterNumber,
+                own,
                 match: null,
+                matches: [],
                 checkedSourceIds: destinationSourceIds,
                 error: [...new Set(failureReasons)].join('\n'),
             };
@@ -280,29 +304,40 @@ export class StaleSourceChecker {
 
         const checkedSourceIds = successfulSearches.map(({ sourceId }) => sourceId);
 
-        const bestMatch = successfulSearches
-            .flatMap(({ sourceId, matches }) =>
-                matches.map(
-                    ({ manga: matchedManga }): StaleSourceMatch => ({
-                        sourceId,
-                        sourceName: matchedManga.source?.displayName ?? sourceId,
-                        mangaId: matchedManga.id,
-                        title: matchedManga.title,
-                        latestChapterNumber: matchedManga.highestNumberedChapter?.chapterNumber ?? 0,
-                    }),
-                ),
+        const matchesPerSource = successfulSearches
+            .map(({ sourceId, matches }) =>
+                matches
+                    .map(
+                        ({ manga: matchedManga, chapters }): StaleSourceMatch => ({
+                            sourceId,
+                            sourceName: matchedManga.source?.displayName ?? sourceId,
+                            mangaId: matchedManga.id,
+                            title: matchedManga.title,
+                            latestChapterNumber: matchedManga.highestNumberedChapter?.chapterNumber ?? 0,
+                            chapterCount: chapters?.length ?? 0,
+                            missingChapters: chapters ? Chapters.getMissingCount(chapters, latestReadChapterNumber) : 0,
+                            latestUploadDate: getLatestUploadDate(chapters),
+                        }),
+                    )
+                    // a source can return several entries for the same title - keep the one carrying the most
+                    .reduce<StaleSourceMatch | null>(
+                        (best, match) => (!best || match.latestChapterNumber > best.latestChapterNumber ? match : best),
+                        null,
+                    ),
             )
-            .reduce<StaleSourceMatch | null>(
-                (best, match) => (!best || match.latestChapterNumber > best.latestChapterNumber ? match : best),
-                null,
-            );
+            .filter((match) => match !== null)
+            .toSorted((a, b) => b.latestChapterNumber - a.latestChapterNumber);
+
+        const bestMatch = matchesPerSource[0] ?? null;
 
         if (!bestMatch) {
             return {
                 checkedAt: Date.now(),
                 verdict: StaleSourceVerdict.NO_MATCH,
                 latestChapterNumber: ownLatestChapterNumber,
+                own,
                 match: null,
+                matches: [],
                 checkedSourceIds,
             };
         }
@@ -324,7 +359,9 @@ export class StaleSourceChecker {
             checkedAt: Date.now(),
             verdict,
             latestChapterNumber: ownLatestChapterNumber,
+            own,
             match: bestMatch,
+            matches: matchesPerSource,
             checkedSourceIds,
         };
     }

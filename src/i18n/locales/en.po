@@ -162,12 +162,6 @@ msgstr "{0} / {1}"
 msgid "{0} / {1}{2}"
 msgstr "{0} / {1}{2}"
 
-#. placeholder {0}: match.sourceName
-#. placeholder {1}: match.latestChapterNumber
-#: src/features/stale-sources/components/StaleSourceEntryCard.tsx
-msgid "{0}: chapter {1}"
-msgstr "{0}: chapter {1}"
-
 #. placeholder {0}: updateStatus.progress
 #: src/features/app-updates/components/WebUIUpdateChecker.tsx
 msgid "{0}% | Updating…"
@@ -374,6 +368,10 @@ msgstr "{extensionStoreCount, plural, one {# extension store} other {# extension
 msgid "{installedExtensionCount, plural, one {# installed} other {# installed}}"
 msgstr "{installedExtensionCount, plural, one {# installed} other {# installed}}"
 
+#: src/features/stale-sources/components/StaleSourceEntryCard.tsx
+msgid "{label} (current)"
+msgstr "{label} (current)"
+
 #: src/features/global-search/screens/SearchAll.tsx
 msgid "{libraryMangaCount, plural, one {# entry in library} other {# entries in library}}"
 msgstr "{libraryMangaCount, plural, one {# entry in library} other {# entries in library}}"
@@ -387,14 +385,6 @@ msgstr "{missingChapterCount, plural, one {Missing # chapter} other {Missing # c
 #: src/features/migration/components/migration-entry/MigrationEntrySearchExcludeActions.tsx
 msgid "{otherResultsCount, plural, one {# more match} other {# more matches}}"
 msgstr "{otherResultsCount, plural, one {# more match} other {# more matches}}"
-
-#: src/features/stale-sources/components/StaleSourceEntryCard.tsx
-msgid "{ownSourceName}: chapter {ownChapter}"
-msgstr "{ownSourceName}: chapter {ownChapter}"
-
-#: src/features/stale-sources/components/StaleSourceEntryCard.tsx
-msgid "{ownSourceName}: no chapters"
-msgstr "{ownSourceName}: no chapters"
 
 #: src/features/app-updates/components/VersionInfo.tsx
 msgid "{progress}% | Updating…"
@@ -944,6 +934,7 @@ msgid "Chapter transition warning"
 msgstr "Chapter transition warning"
 
 #: src/features/backup/Backup.constants.ts
+#: src/features/stale-sources/components/StaleSourceEntryCard.tsx
 #: src/features/stale-sources/components/StaleSourceSettings.tsx
 msgid "Chapters"
 msgstr "Chapters"
@@ -2071,6 +2062,10 @@ msgstr "Forget manga categories"
 msgid "Fourth to last read chapter"
 msgstr "Fourth to last read chapter"
 
+#: src/features/stale-sources/components/StaleSourceEntryCard.tsx
+msgid "Gaps"
+msgstr "Gaps"
+
 #: src/features/library/screens/LibrarySettings.tsx
 #: src/features/reader/settings/ReaderSettings.constants.tsx
 msgid "General"
@@ -2426,6 +2421,10 @@ msgstr "Last sync: {syncDate}"
 msgid "Last update: {date}"
 msgstr "Last update: {date}"
 
+#: src/features/stale-sources/components/StaleSourceEntryCard.tsx
+msgid "Last upload"
+msgstr "Last upload"
+
 #: src/base/utils/Languages.ts
 #: src/features/extension/Extensions.constants.ts
 msgid "Last used"
@@ -2433,6 +2432,7 @@ msgstr "Last used"
 
 #: src/features/browse/sources/components/SourceCard.tsx
 #: src/features/source/browse/screens/SourceMangas.tsx
+#: src/features/stale-sources/components/StaleSourceEntryCard.tsx
 msgid "Latest"
 msgstr "Latest"
 
@@ -3903,6 +3903,7 @@ msgstr "Sort"
 #: src/features/library/components/LibraryOptionsPanel.tsx
 #: src/features/manga/components/details/MangaDetails.tsx
 #: src/features/source/browse/screens/SourceMangas.tsx
+#: src/features/stale-sources/components/StaleSourceEntryCard.tsx
 msgid "Source"
 msgstr "Source"
 

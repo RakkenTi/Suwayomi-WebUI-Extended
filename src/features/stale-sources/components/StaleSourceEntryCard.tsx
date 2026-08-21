@@ -12,6 +12,12 @@ import Stack from '@mui/material/Stack';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
 import Link from '@mui/material/Link';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
@@ -31,29 +37,131 @@ import { getDateString } from '@/base/utils/DateHelper.ts';
 import type { StaleSourceCheckableManga, StaleSourceCheckResult } from '@/features/stale-sources/StaleSources.types.ts';
 import { StaleSourceVerdict } from '@/features/stale-sources/StaleSources.types.ts';
 import { STALE_SOURCE_VERDICT_TRANSLATION } from '@/features/stale-sources/StaleSources.constants.ts';
+import type { MangaIdInfo } from '@/features/manga/Manga.types.ts';
 
-const ChapterComparison = ({ result, ownSourceName }: { result: StaleSourceCheckResult; ownSourceName: string }) => {
+const SourceStatsRow = ({
+    label,
+    latestChapterNumber,
+    chapterCount,
+    missingChapters,
+    latestUploadDate,
+    isOwn,
+    isAhead,
+    mangaId,
+}: {
+    label: string;
+    latestChapterNumber: number | null;
+    chapterCount: number | null;
+    missingChapters: number | null;
+    latestUploadDate: number | null;
+    isOwn: boolean;
+    isAhead: boolean;
+    mangaId?: MangaIdInfo['id'];
+}) => {
     const { t } = useLingui();
 
-    const ownChapter = result.latestChapterNumber;
-    const { match } = result;
+    const color = (() => {
+        if (isOwn) {
+            return 'textPrimary';
+        }
 
-    if (!match) {
+        return isAhead ? 'warning.main' : 'textSecondary';
+    })();
+
+    return (
+        <TableRow>
+            <TableCell sx={{ borderBottom: 'none', pl: 0, py: 0.5 }}>
+                <Typography variant="body2" color={color} sx={{ fontWeight: isOwn ? 'bold' : undefined }}>
+                    {isOwn ? (
+                        t`${label} (current)`
+                    ) : (
+                        // opens the candidate so its chapter list can be inspected before committing to a migration
+                        <Link component={RouterLink} to={AppRoutes.manga.path(mangaId!)} color="inherit">
+                            {label}
+                        </Link>
+                    )}
+                </Typography>
+            </TableCell>
+            <TableCell align="right" sx={{ borderBottom: 'none', py: 0.5 }}>
+                <Typography variant="body2" color={color}>
+                    {latestChapterNumber == null ? '—' : latestChapterNumber}
+                </Typography>
+            </TableCell>
+            <TableCell align="right" sx={{ borderBottom: 'none', py: 0.5 }}>
+                <Typography variant="body2" color="textSecondary">
+                    {chapterCount ?? '—'}
+                </Typography>
+            </TableCell>
+            <TableCell align="right" sx={{ borderBottom: 'none', py: 0.5 }}>
+                <Typography variant="body2" color={missingChapters ? 'error' : 'textSecondary'}>
+                    {isOwn || missingChapters == null ? '—' : missingChapters}
+                </Typography>
+            </TableCell>
+            <TableCell align="right" sx={{ borderBottom: 'none', pr: 0, py: 0.5 }}>
+                <Typography variant="body2" color="textSecondary">
+                    {latestUploadDate ? getDateString(latestUploadDate) : '—'}
+                </Typography>
+            </TableCell>
+        </TableRow>
+    );
+};
+
+/**
+ * Side by side comparison of the entry's own source and every source that carries it, so migrating is a decision
+ * rather than a leap of faith - a source can lead on chapter number while having fewer chapters overall, gaps above
+ * the read progress, or a last upload just as old as the current one.
+ */
+const SourceComparison = ({ result, ownSourceName }: { result: StaleSourceCheckResult; ownSourceName: string }) => {
+    const { t } = useLingui();
+
+    const matches = result.matches?.length ? result.matches : [result.match].filter((match) => match !== null);
+
+    if (!matches.length) {
         return null;
     }
 
-    const delta = ownChapter == null ? null : match.latestChapterNumber - ownChapter;
+    const ownLatestChapterNumber = result.latestChapterNumber;
 
     return (
-        <Stack sx={{ gap: 0.25 }}>
-            <Typography variant="body2" color="textSecondary">
-                {ownChapter == null ? t`${ownSourceName}: no chapters` : t`${ownSourceName}: chapter ${ownChapter}`}
-            </Typography>
-            <Typography variant="body2" color="warning.main">
-                {t`${match.sourceName}: chapter ${match.latestChapterNumber}`}
-                {delta != null && delta > 0 ? ` (+${Number(delta.toFixed(2))})` : ''}
-            </Typography>
-        </Stack>
+        <TableContainer sx={{ mt: 1, overflowX: 'auto' }}>
+            <Table size="small">
+                <TableHead>
+                    <TableRow>
+                        <TableCell sx={{ pl: 0, py: 0.5 }}>{t`Source`}</TableCell>
+                        <TableCell align="right" sx={{ py: 0.5 }}>{t`Latest`}</TableCell>
+                        <TableCell align="right" sx={{ py: 0.5 }}>{t`Chapters`}</TableCell>
+                        <TableCell align="right" sx={{ py: 0.5 }}>{t`Gaps`}</TableCell>
+                        <TableCell align="right" sx={{ pr: 0, py: 0.5 }}>{t`Last upload`}</TableCell>
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                    <SourceStatsRow
+                        label={ownSourceName}
+                        latestChapterNumber={ownLatestChapterNumber}
+                        chapterCount={result.own?.chapterCount ?? null}
+                        missingChapters={null}
+                        latestUploadDate={result.own?.latestUploadDate ?? null}
+                        isOwn
+                        isAhead={false}
+                    />
+                    {matches.map((match) => (
+                        <SourceStatsRow
+                            key={match.sourceId}
+                            label={match.sourceName}
+                            latestChapterNumber={match.latestChapterNumber}
+                            chapterCount={match.chapterCount || null}
+                            missingChapters={match.missingChapters}
+                            latestUploadDate={match.latestUploadDate}
+                            isOwn={false}
+                            mangaId={match.mangaId}
+                            isAhead={
+                                ownLatestChapterNumber == null || match.latestChapterNumber > ownLatestChapterNumber
+                            }
+                        />
+                    ))}
+                </TableBody>
+            </Table>
+        </TableContainer>
     );
 };
 
@@ -111,7 +219,7 @@ export const StaleSourceEntryCard = memo(
                             </TypographyMaxLines>
                         </Link>
 
-                        <ChapterComparison result={result} ownSourceName={ownSourceName} />
+                        <SourceComparison result={result} ownSourceName={ownSourceName} />
 
                         {!!result.error && (
                             <Typography variant="body2" color="error">

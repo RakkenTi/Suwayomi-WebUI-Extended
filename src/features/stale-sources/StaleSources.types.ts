@@ -29,6 +29,22 @@ export type StaleSourceMatch = {
     mangaId: MangaIdInfo['id'];
     title: string;
     latestChapterNumber: number;
+    /** Chapters the source lists, which can differ a lot from the highest chapter number. */
+    chapterCount: number;
+    /**
+     * Chapters missing between the entry's read progress and the source's newest chapter. A source that is ahead but
+     * full of holes is usually not worth migrating to.
+     */
+    missingChapters: number;
+    /** Newest chapter's upload date - tells apart a source that is ahead from one that is also still active. */
+    latestUploadDate: number | null;
+};
+
+/** The entry's own source, described the same way as the candidates so both can be compared side by side. */
+export type StaleSourceOwnStats = {
+    latestChapterNumber: number | null;
+    chapterCount: number;
+    latestUploadDate: number | null;
 };
 
 export type StaleSourceCheckResult = {
@@ -36,8 +52,15 @@ export type StaleSourceCheckResult = {
     verdict: StaleSourceVerdict;
     /** Highest chapter number of the entry's own source at the time of the check. */
     latestChapterNumber: number | null;
+    /** The entry's own source at the time of the check. Absent on results stored before this was recorded. */
+    own?: StaleSourceOwnStats;
     /** Best match found in another source, if any. */
     match: StaleSourceMatch | null;
+    /**
+     * Best match per source, so the result can be judged instead of taken on faith. Empty on results stored before
+     * per source stats were recorded.
+     */
+    matches?: StaleSourceMatch[];
     /** Sources that were searched, whether or not they returned a match. */
     checkedSourceIds: SourceIdInfo['id'][];
     error?: string;
