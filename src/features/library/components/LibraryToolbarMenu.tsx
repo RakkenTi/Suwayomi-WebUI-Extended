@@ -21,6 +21,7 @@ import { ReactRouter } from '@/lib/react-router/ReactRouter.ts';
 import { AppRoutes } from '@/base/AppRoute.constants.ts';
 import { assertIsDefined } from '@/base/Asserts.ts';
 import type { MangaIdInfo } from '@/features/manga/Manga.types.ts';
+import { StaleSourceToolbarButton } from '@/features/stale-sources/components/StaleSourceToolbarButton.tsx';
 
 export const LibraryToolbarMenu = ({
     category,
@@ -39,12 +40,14 @@ export const LibraryToolbarMenu = ({
         options.hasReadChapters != null ||
         options.hasBookmarkedChapters != null ||
         options.hasDuplicateChapters != null ||
+        options.hasStaleSource != null ||
         Object.values(options.hasStatus).some((hasStatus) => hasStatus != null) ||
         Object.values(options.hasTrackerBinding).some((trackerFilterStatus) => trackerFilterStatus != null) ||
         Object.values(options.hasSource).some((sourceFilterStatus) => sourceFilterStatus != null);
 
     return (
         <>
+            <StaleSourceToolbarButton />
             <CustomTooltip title={t`Open random entry`} disabled={!mangas.length}>
                 <IconButton
                     disabled={!mangas.length}

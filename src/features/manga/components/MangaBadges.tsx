@@ -33,6 +33,7 @@ export const MangaBadges = ({
     isInLibrary,
     unread,
     downloadCount,
+    isBehindOtherSource,
     mode,
 }: {
     inLibraryIndicator?: boolean;
@@ -40,6 +41,7 @@ export const MangaBadges = ({
     isInLibrary: boolean;
     unread?: number;
     downloadCount?: number;
+    isBehindOtherSource?: boolean;
     mode: MangaCardMode;
 }) => {
     const { t } = useLingui();
@@ -47,7 +49,7 @@ export const MangaBadges = ({
     const isTouchDevice = MediaQuery.useIsTouchDevice();
 
     const {
-        settings: { showUnreadBadge, showDownloadBadge },
+        settings: { showUnreadBadge, showDownloadBadge, showStaleSourceBadge },
     } = useMetadataServerSettings();
 
     return (
@@ -82,6 +84,14 @@ export const MangaBadges = ({
             )}
             {((showUnreadBadge && mode === 'default') || mode === 'duplicate') && (unread ?? 0) > 0 && (
                 <Badge sx={{ backgroundColor: 'primary.main', color: 'primary.contrastText' }}>{unread}</Badge>
+            )}
+            {showStaleSourceBadge && mode === 'default' && isBehindOtherSource && (
+                <Badge
+                    sx={{ backgroundColor: 'warning.main', color: 'warning.contrastText' }}
+                    title={t`Another source is ahead`}
+                >
+                    {t`Behind`}
+                </Badge>
             )}
             {((showDownloadBadge && mode === 'default') || mode === 'duplicate') && (downloadCount ?? 0) > 0 && (
                 <Badge

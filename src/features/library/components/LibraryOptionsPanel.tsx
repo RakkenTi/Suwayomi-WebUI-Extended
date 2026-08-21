@@ -144,6 +144,11 @@ export const LibraryOptionsPanel = ({
                                 checked={categoryLibraryOptions.hasDuplicateChapters}
                                 onChange={(c) => updateCategoryLibraryOptions('hasDuplicateChapters', c)}
                             />
+                            <ThreeStateCheckboxInput
+                                label={t`Behind another source`}
+                                checked={categoryLibraryOptions.hasStaleSource}
+                                onChange={(c) => updateCategoryLibraryOptions('hasStaleSource', c)}
+                            />
                             <CollapsableFilter
                                 title={t`Status`}
                                 items={Object.values(MangaStatus).map((status) => (

@@ -35,6 +35,8 @@ import pickBy from 'lodash/fp/pickBy';
 import { CustomCache } from '@/lib/storage/CustomCache.ts';
 import { STABLE_EMPTY_ARRAY } from '@/base/Base.constants.ts';
 import { Mangas } from '@/features/manga/services/Mangas.ts';
+import type { GqlMetaHolder } from '@/features/metadata/Metadata.types.ts';
+import { isEntryBehindOtherSource } from '@/features/stale-sources/services/StaleSourceMetadata.ts';
 import isEqual from 'lodash/fp/isEqual';
 
 const triStateFilter = (
@@ -135,12 +137,15 @@ type TMangaFilterOptions = Pick<
     | 'hasDownloadedChapters'
     | 'hasBookmarkedChapters'
     | 'hasDuplicateChapters'
+    | 'hasStaleSource'
     | 'hasTrackerBinding'
     | 'hasStatus'
     | 'hasSource'
 >;
 type TMangaFilter = Pick<MangaType, 'bookmarkCount' | 'hasDuplicateChapters'> &
     TMangaTrackerFilter &
+    MangaIdInfo &
+    GqlMetaHolder &
     MangaStatusInfo &
     MangaSourceIdInfo &
     MangaChapterCountInfo &
@@ -154,6 +159,7 @@ const filterManga = (
         hasReadChapters,
         hasBookmarkedChapters,
         hasDuplicateChapters,
+        hasStaleSource,
         hasTrackerBinding,
         hasStatus,
         hasSource,
@@ -164,6 +170,7 @@ const filterManga = (
     triStateFilterNumber(hasReadChapters, manga.chapters.totalCount - manga.unreadCount) &&
     triStateFilterNumber(hasBookmarkedChapters, manga.bookmarkCount) &&
     triStateFilterBoolean(hasDuplicateChapters, manga.hasDuplicateChapters) &&
+    triStateFilterBoolean(hasStaleSource, isEntryBehindOtherSource(manga)) &&
     trackerFilter(hasTrackerBinding, manga) &&
     statusFilter(hasStatus, manga) &&
     sourceFilter(hasSource, manga);
@@ -314,6 +321,7 @@ export const useGetVisibleLibraryMangas = <Manga extends MangaIdInfo & TMangasFi
         hasBookmarkedChapters,
         hasTrackerBinding,
         hasDuplicateChapters,
+        hasStaleSource,
         hasStatus,
     } = options;
     const { settings } = useMetadataServerSettings();
@@ -342,6 +350,7 @@ export const useGetVisibleLibraryMangas = <Manga extends MangaIdInfo & TMangasFi
             hasBookmarkedChapters,
             hasTrackerBinding,
             hasDuplicateChapters,
+            hasStaleSource,
             hasStatus,
             hasSource,
             settings.ignoreFilters,
@@ -355,6 +364,7 @@ export const useGetVisibleLibraryMangas = <Manga extends MangaIdInfo & TMangasFi
             hasReadChapters != null ||
             hasDownloadedChapters != null ||
             hasBookmarkedChapters != null ||
+            hasStaleSource != null ||
             !!query ||
             isATrackFilterActive ||
             isASourceFilterActive) &&

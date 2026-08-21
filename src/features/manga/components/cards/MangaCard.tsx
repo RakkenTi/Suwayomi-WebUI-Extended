@@ -17,6 +17,7 @@ import { MangaListCard } from '@/features/manga/components/cards/MangaListCard.t
 import type { MangaCardMode, MangaCardProps } from '@/features/manga/Manga.types.ts';
 import { ContinueReadingButton } from '@/features/manga/components/ContinueReadingButton.tsx';
 import { MangaBadges } from '@/features/manga/components/MangaBadges.tsx';
+import { isEntryBehindOtherSource } from '@/features/stale-sources/services/StaleSourceMetadata.ts';
 import { GridLayout } from '@/base/Base.types.ts';
 import { AppRoutes } from '@/base/AppRoute.constants.ts';
 import { useMetadataServerSettings } from '@/features/settings/services/ServerSettingsMetadata.ts';
@@ -64,12 +65,14 @@ export const MangaCard = memo((props: MangaCardProps) => {
     const migrationSourceMangaId = Number(mangaIdAsString);
 
     const {
-        settings: { showContinueReadingButton },
+        settings: { showContinueReadingButton, showStaleSourceBadge },
     } = useMetadataServerSettings();
 
     const { updateLibraryState, isInLibrary } = useManageMangaLibraryState(manga, mode === 'source');
 
     const mangaLinkTo = getMangaLinkTo(mode, manga.id);
+
+    const isBehindOtherSource = showStaleSourceBadge && mode === 'default' && isEntryBehindOtherSource(manga);
 
     const handleClick = useCallback(
         (event: React.MouseEvent | React.TouchEvent, openMenu?: () => void) => {
@@ -207,6 +210,7 @@ export const MangaCard = memo((props: MangaCardProps) => {
                                 isInLibrary={isInLibrary}
                                 unread={unreadCount}
                                 downloadCount={downloadCount}
+                                isBehindOtherSource={isBehindOtherSource}
                                 updateLibraryState={updateLibraryState}
                                 mode={mode}
                             />
