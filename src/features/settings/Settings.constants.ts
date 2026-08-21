@@ -33,6 +33,7 @@ import {
 import { ThemeMode } from '@/features/theme/AppTheme.types.ts';
 import { getPreferredISOLanguageCodes } from '@/lib/ISOLanguageUtil.ts';
 import type { BackupFlag } from '@/features/backup/Backup.types.ts';
+import { STALE_SOURCE_SETTINGS_DEFAULT } from '@/features/stale-sources/StaleSources.constants.ts';
 
 export const MANGA_GRID_WIDTH = {
     min: 100,
@@ -59,6 +60,9 @@ export const SERVER_SETTINGS_METADATA_DEFAULT: MetadataServerSettings = {
     showDownloadBadge: false,
     showUnreadBadge: false,
     gridLayout: GridLayout.Compact,
+
+    // stale sources
+    ...STALE_SOURCE_SETTINGS_DEFAULT,
 
     // client
     devices: [DEFAULT_DEVICE],

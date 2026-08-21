@@ -32,6 +32,13 @@ import type { I18nResourceCode } from '@/i18n';
 import { i18nResources } from '@/i18n';
 import { toUniqueLanguageCodes } from '@/base/utils/Languages.ts';
 import { assertIsDefined } from '@/base/Asserts.ts';
+import type { StaleSourceCheckResult } from '@/features/stale-sources/StaleSources.types.ts';
+import {
+    STALE_SOURCE_CHECKS_PER_DAY,
+    STALE_SOURCE_MIN_CHAPTER_DELTA,
+    STALE_SOURCE_RECHECK_DAYS,
+    STALE_SOURCE_SILENT_DAYS,
+} from '@/features/stale-sources/StaleSources.constants.ts';
 
 const MATCH_ARRAY_NUMBERS = /^\[\d+(?:,\d+)*]$/g;
 
@@ -108,6 +115,41 @@ export const APP_METADATA: Record<
         convert: convertToBoolean,
     },
     skipDecimalChapters: {
+        convert: convertToBooleanNullAndUndefined,
+    },
+    staleSourceCheck: {
+        convert: convertToObject<StaleSourceCheckResult | null>,
+    },
+    staleSourceIgnoredSourceIds: {
+        convert: convertToObject<string[]>,
+    },
+    staleSourceCheckEnabled: {
+        convert: convertToBoolean,
+    },
+    staleSourceChecksPerDay: {
+        convert: convertToNumber,
+        toConstrainedValue: (value: number) =>
+            coerceIn(value, STALE_SOURCE_CHECKS_PER_DAY.min, STALE_SOURCE_CHECKS_PER_DAY.max),
+    },
+    staleSourceSilentDays: {
+        convert: convertToNumber,
+        toConstrainedValue: (value: number) =>
+            coerceIn(value, STALE_SOURCE_SILENT_DAYS.min, STALE_SOURCE_SILENT_DAYS.max),
+    },
+    staleSourceMinChapterDelta: {
+        convert: convertToNumber,
+        toConstrainedValue: (value: number) =>
+            coerceIn(value, STALE_SOURCE_MIN_CHAPTER_DELTA.min, STALE_SOURCE_MIN_CHAPTER_DELTA.max),
+    },
+    staleSourceRecheckDays: {
+        convert: convertToNumber,
+        toConstrainedValue: (value: number) =>
+            coerceIn(value, STALE_SOURCE_RECHECK_DAYS.min, STALE_SOURCE_RECHECK_DAYS.max),
+    },
+    showStaleSourceBadge: {
+        convert: convertToBoolean,
+    },
+    hasStaleSource: {
         convert: convertToBooleanNullAndUndefined,
     },
     showAddToLibraryCategorySelectDialog: {
@@ -445,6 +487,16 @@ export const GLOBAL_METADATA_KEYS: AppMetadataKeys[] = [
     'removeMangaFromCategories',
     'showTabSize',
 
+    // stale sources
+    'staleSourceCheck',
+    'staleSourceIgnoredSourceIds',
+    'staleSourceCheckEnabled',
+    'staleSourceChecksPerDay',
+    'staleSourceSilentDays',
+    'staleSourceMinChapterDelta',
+    'staleSourceRecheckDays',
+    'showStaleSourceBadge',
+
     // library category options
     // filter
     'hasDownloadedChapters',
@@ -452,6 +504,7 @@ export const GLOBAL_METADATA_KEYS: AppMetadataKeys[] = [
     'hasUnreadChapters',
     'hasReadChapters',
     'hasDuplicateChapters',
+    'hasStaleSource',
     'hasTrackerBinding',
     'hasStatus',
     'hasSource',

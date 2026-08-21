@@ -38,6 +38,7 @@ import type { MetadataLibrarySettings } from '@/features/library/Library.types.t
 import { AppRoutes } from '@/base/AppRoute.constants.ts';
 import { getErrorMessage } from '@/lib/HelperFunctions.ts';
 import { useAppTitle } from '@/features/navigation-bar/hooks/useAppTitle.ts';
+import { StaleSourceSettings } from '@/features/stale-sources/components/StaleSourceSettings.tsx';
 
 const removeNonLibraryMangasFromCategories = async (): Promise<void> => {
     try {
@@ -184,6 +185,7 @@ export function LibrarySettings() {
                 serverSettings={serverSettings.data!.settings}
                 categories={categories.data!.categories.nodes}
             />
+            <StaleSourceSettings />
             <List
                 subheader={
                     <ListSubheader component="div" id="library-advanced">

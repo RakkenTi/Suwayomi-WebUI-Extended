@@ -389,6 +389,7 @@
                 "src/features/reader/services/ReaderControls.ts",
                 "src/features/reader/services/ReaderService.ts",
                 "src/features/source/services/Sources.ts",
+                "src/features/stale-sources/services/StaleSourceChecker.ts",
                 "src/lib/dnd-kit/DndKitUtil.ts",
                 "src/lib/requests/RequestManager.ts",
                 "src/lib/requests/client/GraphQLClient.ts",

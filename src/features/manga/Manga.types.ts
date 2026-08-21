@@ -29,6 +29,8 @@ import type {
     TrackRecordType,
 } from '@/lib/graphql/generated/graphql-base.types.ts';
 import type { UsePressResult } from '@/base/hooks/usePress.ts';
+import type { StaleSourceMangaMetadata } from '@/features/stale-sources/StaleSources.types.ts';
+import type { GqlMetaHolder } from '@/features/metadata/Metadata.types.ts';
 
 export type MangaCardMode = 'default' | 'source' | 'migrate.select.bulk' | 'migrate.select.single' | 'duplicate';
 
@@ -38,7 +40,7 @@ type MangaCardBaseProps = Pick<MangaTypeGql, 'id' | 'title' | 'sourceId' | 'inLi
         firstUnreadChapter?:
             | (ChapterIdInfo & ChapterSourceOrderInfo & ChapterReadInfo & ChapterNumberInfo & ChapterNameInfo)
             | null;
-    };
+    } & GqlMetaHolder;
 
 export type MangaIdInfo = Pick<MangaTypeGql, 'id'>;
 export type MangaChapterCountInfo = { chapters: Pick<MangaTypeGql['chapters'], 'totalCount'> };
@@ -84,7 +86,7 @@ export type SpecificMangaCardProps = Omit<MangaCardProps, 'manga'> &
         mangaBadges: JSX.Element;
     };
 
-export type MangaMetadata = ChapterListOptions;
+export type MangaMetadata = ChapterListOptions & StaleSourceMangaMetadata;
 
 export type MangaMetadataKeys = keyof MangaMetadata;
 

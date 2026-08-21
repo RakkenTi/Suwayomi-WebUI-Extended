@@ -22,9 +22,11 @@ import {
     requestBatchMangaMetadataUpdate,
 } from '@/features/metadata/services/MetadataUpdater.ts';
 import { defaultPromiseErrorHandler } from '@/lib/DefaultPromiseErrorHandler.ts';
+import { STALE_SOURCE_MANGA_METADATA_DEFAULT } from '@/features/stale-sources/StaleSources.constants.ts';
 
 const DEFAULT_MANGA_METADATA: MangaMetadata = {
     ...DEFAULT_CHAPTER_OPTIONS,
+    ...STALE_SOURCE_MANGA_METADATA_DEFAULT,
 };
 
 const convertAppMetadataToGqlMetadata = (
@@ -32,6 +34,8 @@ const convertAppMetadataToGqlMetadata = (
 ): Metadata<string, AllowedMetadataValueTypes> => ({
     ...metadata,
     excludedScanlators: JSON.stringify(metadata.excludedScanlators),
+    staleSourceCheck: JSON.stringify(metadata.staleSourceCheck),
+    staleSourceIgnoredSourceIds: JSON.stringify(metadata.staleSourceIgnoredSourceIds),
 });
 
 const getMangaMetadataWithDefaultValueFallback = (

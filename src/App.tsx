@@ -35,6 +35,8 @@ import { ReactRouter } from '@/lib/react-router/ReactRouter.ts';
 import { AuthManager } from '@/features/authentication/AuthManager.ts';
 import { ImageProcessingType } from '@/features/settings/Settings.types.ts';
 import { MigrationFABIndicator } from '@/features/migration/components/MigrationFABIndicator.tsx';
+import { StaleSourceCheckIndicator } from '@/features/stale-sources/components/StaleSourceCheckIndicator.tsx';
+import { StaleSourceCheckScheduler } from '@/features/stale-sources/components/StaleSourceCheckScheduler.tsx';
 import { MigrationManager } from '@/features/migration/MigrationManager.ts';
 import { SplashScreen } from '@/features/authentication/components/SplashScreen.tsx';
 import { d } from 'koration';
@@ -94,6 +96,7 @@ const { LibraryDuplicates } = loadable(
     () => import('@/features/library/screens/LibraryDuplicates.tsx'),
     lazyLoadFallback,
 );
+const { StaleSources } = loadable(() => import('@/features/stale-sources/screens/StaleSources.tsx'), lazyLoadFallback);
 const { Appearance } = loadable(() => import('@/features/settings/screens/Appearance.tsx'), lazyLoadFallback);
 const { GlobalReaderSettings } = loadable(
     () => import('@/features/reader/settings/screens/GlobalReaderSettings.tsx'),
@@ -304,6 +307,10 @@ const MainApp = () => {
                                     path={AppRoutes.settings.children.library.children.duplicates.match}
                                     element={<LibraryDuplicates />}
                                 />
+                                <Route
+                                    path={AppRoutes.settings.children.library.children.staleSources.match}
+                                    element={<StaleSources />}
+                                />
                             </Route>
                             <Route path={AppRoutes.settings.children.download.match}>
                                 <Route index element={<DownloadSettings />} />
@@ -420,6 +427,7 @@ export const App: React.FC = () => (
                 <InitialBackgroundRequests />
                 <BackgroundSubscriptions />
                 <ResumeMigration />
+                <StaleSourceCheckScheduler />
 
                 <Box sx={{ display: 'flex' }}>
                     <OffsetContainerRoot>
@@ -433,6 +441,7 @@ export const App: React.FC = () => (
                     </OffsetContainerRoot>
                 </Box>
                 <MigrationFABIndicator />
+                <StaleSourceCheckIndicator />
             </InitializeGuard>
         </AuthGuard>
     </AppContext>

@@ -12,3 +12,9 @@ Glossary of terms for this fork's custom behavior. Definitions only; implementat
 - **Duplicate chapters**: Entries of the same manga sharing one chapter number, published by different scanlators.
 - **Dupe winner**: The single entry kept when duplicates are collapsed: the anchor chapter's scanlator if present, otherwise the latest listed entry.
 - **Source search failure**: A global-search source that returned an error instead of results. Failures are retried automatically a limited number of times, then shown compactly with full details available on demand.
+- **Silent entry**: A library entry whose newest chapter is older than the configured silence threshold, or that has no chapters at all. Entries whose status says no more chapters are expected (completed, cancelled, licensed, publishing finished) are never silent.
+- **Stale source**: The source of a library entry that another source is ahead of by at least the configured chapter margin, comparing highest chapter numbers regardless of scanlator. An entry whose own source has no chapters counts as stale as soon as any other source has chapters.
+- **Stale source check**: Per entry search across every other source the library uses, comparing the highest chapter number of each match against the entry's own. The entry is re-fetched from its own source first so the comparison uses what the source currently offers. The result is stored in the entry's metadata.
+- **Check budget**: Upper bound of stale source checks started within a rolling 24 hours. Derived from the stored check timestamps, so it is shared by every client.
+- **Rolling check**: The scheduler walks the library over time instead of sweeping it - each run takes the silent entries checked longest ago, up to the remaining check budget. It only runs while the WebUI is open, and one client at a time.
+- **Ignored source**: A source dismissed for one entry. It is neither searched nor reported for that entry again.

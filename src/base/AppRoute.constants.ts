@@ -67,6 +67,10 @@ export const AppRoutes = {
                         match: 'duplicates',
                         path: '/settings/library/duplicates',
                     },
+                    staleSources: {
+                        match: 'stale-sources',
+                        path: '/settings/library/stale-sources',
+                    },
                 },
             },
             download: {

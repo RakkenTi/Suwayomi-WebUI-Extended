@@ -21,6 +21,7 @@ import type {
 } from '@/lib/graphql/generated/graphql-base.types.ts';
 import type { MetadataHistorySettings } from '@/features/history/History.types.ts';
 import type { GetServerSettingsQuery } from '@/lib/graphql/generated/graphql.ts';
+import type { MetadataStaleSourceSettings } from '@/features/stale-sources/StaleSources.types.ts';
 
 export type MetadataServerSettingKeys = keyof MetadataServerSettings;
 
@@ -34,7 +35,8 @@ export type MetadataServerSettings = MetadataDownloadSettings &
     MetadataTrackingSettings &
     MetadataUpdateSettings &
     MetadataThemeSettings &
-    MetadataHistorySettings;
+    MetadataHistorySettings &
+    MetadataStaleSourceSettings;
 
 export interface ISearchSettings {
     ignoreFilters: boolean;
