@@ -135,6 +135,25 @@ export const MangaToolbarMenu = ({ manga, onRefresh, refreshing }: IProps) => {
                                     </IconButton>
                                 </Link>
                             </CustomTooltip>
+                            <CustomTooltip
+                                title={
+                                    isQueuedForStaleSourceCheck ? t`Queued for source check` : t`Check other sources`
+                                }
+                            >
+                                <span>
+                                    <IconButton
+                                        color="inherit"
+                                        disabled={isQueuedForStaleSourceCheck}
+                                        onClick={() => {
+                                            Mangas.performAction('check_stale_source', [manga.id], {}).catch(
+                                                defaultPromiseErrorHandler('MangaToolbarMenu::checkStaleSource'),
+                                            );
+                                        }}
+                                    >
+                                        <ManageSearchIcon />
+                                    </IconButton>
+                                </span>
+                            </CustomTooltip>
                             <CustomTooltip title={t`Edit manga categories`}>
                                 <IconButton
                                     onClick={() => {
