@@ -80,7 +80,7 @@ export const StaleSources = () => {
 
     const recheckEntry = useCallback(
         (manga: StaleSourceCheckableManga) => {
-            StaleSourceChecker.checkSingleEntry(manga, mangas, settings).catch((e) =>
+            StaleSourceChecker.enqueue([manga], mangas, settings).catch((e) =>
                 makeToast(t`Stale source check failed`, 'error', getErrorMessage(e)),
             );
         },
@@ -134,7 +134,7 @@ export const StaleSources = () => {
                 <StaleSourceEntryCard
                     manga={manga}
                     result={result}
-                    isCheckDisabled={isRunning}
+                    isCheckDisabled={StaleSourceChecker.isQueued(manga.id)}
                     onRecheck={() => recheckEntry(manga)}
                     onIgnoreSource={() => {
                         if (!result.match) {

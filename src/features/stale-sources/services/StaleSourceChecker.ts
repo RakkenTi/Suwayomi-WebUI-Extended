@@ -16,6 +16,7 @@ import { getErrorMessage } from '@/lib/HelperFunctions.ts';
 import { ZustandUtil } from '@/lib/zustand/ZustandUtil.ts';
 import { searchSourceForMangaTitle, SourceRequestQueue } from '@/features/source/services/SourceMangaSearch.ts';
 import type { SourceIdInfo } from '@/features/source/Source.types.ts';
+import type { MangaIdInfo } from '@/features/manga/Manga.types.ts';
 import type {
     MetadataStaleSourceSettings,
     StaleSourceCheckableManga,
@@ -39,6 +40,12 @@ import {
  * temporarily unavailable, which should not silence an entry for the full re-check interval.
  */
 const FAILED_CHECK_RETRY_DELAY = d(1).days.inWholeMilliseconds;
+
+type QueuedCheck = {
+    manga: StaleSourceCheckableManga;
+    libraryMangas: StaleSourceCheckableManga[];
+    settings: MetadataStaleSourceSettings;
+};
 
 type StaleSourceCheckerState = {
     isRunning: boolean;
@@ -72,6 +79,13 @@ const toDays = (days: number): number => d(days).days.inWholeMilliseconds;
 export class StaleSourceChecker {
     private static abortController: AbortController | null = null;
 
+    private static pendingChecks: QueuedCheck[] = [];
+
+    /** Entries queued or in flight - prevents queueing the same entry twice. */
+    private static queuedMangaIds = new Set<MangaIdInfo['id']>();
+
+    private static drainPromise: Promise<void> | null = null;
+
     static getState(): StaleSourceCheckerState {
         return checkerStore.getState();
     }
@@ -85,8 +99,13 @@ export class StaleSourceChecker {
     }
 
     static abort(reason: unknown = 'aborted'): void {
+        StaleSourceChecker.pendingChecks = [];
         StaleSourceChecker.abortController?.abort(reason);
         StaleSourceChecker.abortController = null;
+    }
+
+    static isQueued(mangaId: MangaIdInfo['id']): boolean {
+        return StaleSourceChecker.queuedMangaIds.has(mangaId);
     }
 
     /**
@@ -311,62 +330,124 @@ export class StaleSourceChecker {
     }
 
     /**
-     * Checks the passed entries and stores every result in the entry's metadata.
+     * Checks one queued entry and stores the result in its metadata.
      */
-    private static async checkEntries(
-        entriesToCheck: StaleSourceCheckableManga[],
-        mangas: StaleSourceCheckableManga[],
-        settings: MetadataStaleSourceSettings,
+    private static async processQueuedCheck(
+        { manga, libraryMangas, settings }: QueuedCheck,
         signal: AbortSignal,
     ): Promise<void> {
-        const checkQueue = pLimit(MAX_STALE_SOURCE_CHECKS_IN_PARALLEL);
+        signal.throwIfAborted();
 
-        await Promise.allSettled(
-            entriesToCheck.map((manga) =>
-                checkQueue(async () => {
-                    signal.throwIfAborted();
+        StaleSourceChecker.updateState((draft) => {
+            draft.activeMangaTitle = manga.title;
+        });
 
-                    StaleSourceChecker.updateState((draft) => {
-                        draft.activeMangaTitle = manga.title;
-                    });
+        try {
+            const destinationSourceIds = StaleSourceChecker.getDestinationSourceIds(manga, libraryMangas);
 
-                    try {
-                        const destinationSourceIds = StaleSourceChecker.getDestinationSourceIds(manga, mangas);
+            const result = await StaleSourceChecker.checkEntry(manga, destinationSourceIds, settings, signal);
 
-                        const result = await StaleSourceChecker.checkEntry(
-                            manga,
-                            destinationSourceIds,
-                            settings,
-                            signal,
-                        );
+            await setStaleSourceCheckResult(manga, result);
+        } catch (e) {
+            if (signal.aborted) {
+                throw e;
+            }
 
-                        await setStaleSourceCheckResult(manga, result);
-                    } catch (e) {
-                        if (signal.aborted) {
-                            throw e;
-                        }
+            await setStaleSourceCheckResult(manga, {
+                checkedAt: Date.now(),
+                verdict: StaleSourceVerdict.FAILED,
+                latestChapterNumber: manga.highestNumberedChapter?.chapterNumber ?? null,
+                match: null,
+                checkedSourceIds: [],
+                error: getErrorMessage(e),
+            });
+        } finally {
+            StaleSourceChecker.queuedMangaIds.delete(manga.id);
 
-                        await setStaleSourceCheckResult(manga, {
-                            checkedAt: Date.now(),
-                            verdict: StaleSourceVerdict.FAILED,
-                            latestChapterNumber: manga.highestNumberedChapter?.chapterNumber ?? null,
-                            match: null,
-                            checkedSourceIds: [],
-                            error: getErrorMessage(e),
-                        });
-                    } finally {
-                        StaleSourceChecker.updateState((draft) => {
-                            draft.progress.completed += 1;
-                        });
-                    }
-                }),
-            ),
-        );
+            StaleSourceChecker.updateState((draft) => {
+                draft.progress.completed += 1;
+            });
+        }
     }
 
     /**
-     * Runs one rolling batch. Does nothing when a run is already in progress, the budget is used up or no entry is
-     * due for a check.
+     * Works through the queue until it runs dry. Entries added while a batch is in flight are picked up by the next
+     * iteration instead of starting a second run.
+     */
+    private static async drain(): Promise<void> {
+        const abortController = new AbortController();
+        StaleSourceChecker.abortController = abortController;
+        const { signal } = abortController;
+
+        StaleSourceChecker.updateState((draft) => {
+            draft.isRunning = true;
+            draft.lastError = null;
+            draft.activeMangaTitle = null;
+        });
+
+        try {
+            while (StaleSourceChecker.pendingChecks.length && !signal.aborted) {
+                const batch = StaleSourceChecker.pendingChecks.splice(0, StaleSourceChecker.pendingChecks.length);
+                const checkQueue = pLimit(MAX_STALE_SOURCE_CHECKS_IN_PARALLEL);
+
+                // oxlint-disable-next-line no-await-in-loop
+                await Promise.allSettled(
+                    batch.map((queuedCheck) =>
+                        checkQueue(() => StaleSourceChecker.processQueuedCheck(queuedCheck, signal)),
+                    ),
+                );
+            }
+        } catch (e) {
+            StaleSourceChecker.updateState((draft) => {
+                draft.lastError = getErrorMessage(e);
+            });
+        } finally {
+            StaleSourceChecker.abortController = null;
+            StaleSourceChecker.pendingChecks = [];
+            StaleSourceChecker.queuedMangaIds.clear();
+
+            StaleSourceChecker.updateState((draft) => {
+                draft.isRunning = false;
+                draft.activeMangaTitle = null;
+                draft.lastRunAt = Date.now();
+                draft.progress = { total: 0, completed: 0 };
+            });
+        }
+    }
+
+    /**
+     * Queues entries for a check, ignoring the candidate filters and the daily budget.
+     *
+     * Entries already queued or in flight are skipped, so triggering the same entry twice does not check it twice.
+     * The returned promise resolves once the whole queue - not just these entries - has been worked through.
+     */
+    static enqueue(
+        entries: StaleSourceCheckableManga[],
+        libraryMangas: StaleSourceCheckableManga[],
+        settings: MetadataStaleSourceSettings,
+    ): Promise<void> {
+        const newEntries = entries.filter((manga) => !StaleSourceChecker.queuedMangaIds.has(manga.id));
+
+        if (newEntries.length) {
+            newEntries.forEach((manga) => StaleSourceChecker.queuedMangaIds.add(manga.id));
+            StaleSourceChecker.pendingChecks.push(...newEntries.map((manga) => ({ manga, libraryMangas, settings })));
+
+            StaleSourceChecker.updateState((draft) => {
+                draft.progress.total += newEntries.length;
+            });
+        }
+
+        if (!StaleSourceChecker.drainPromise) {
+            StaleSourceChecker.drainPromise = StaleSourceChecker.drain().finally(() => {
+                StaleSourceChecker.drainPromise = null;
+            });
+        }
+
+        return StaleSourceChecker.drainPromise;
+    }
+
+    /**
+     * Queues one rolling batch. Does nothing when the budget is used up or no entry is due for a check.
      *
      * @param limit overrides the remaining daily budget - used by the manual "check now" action.
      */
@@ -375,10 +456,6 @@ export class StaleSourceChecker {
         settings: MetadataStaleSourceSettings,
         limit?: number,
     ): Promise<void> {
-        if (StaleSourceChecker.isRunning()) {
-            return;
-        }
-
         const budget = limit ?? StaleSourceChecker.getRemainingBudget(mangas, settings);
         if (budget <= 0) {
             return;
@@ -389,65 +466,7 @@ export class StaleSourceChecker {
             return;
         }
 
-        const abortController = new AbortController();
-        StaleSourceChecker.abortController = abortController;
-
-        StaleSourceChecker.updateState((draft) => {
-            draft.isRunning = true;
-            draft.lastError = null;
-            draft.activeMangaTitle = null;
-            draft.progress = { total: entriesToCheck.length, completed: 0 };
-        });
-
-        try {
-            await StaleSourceChecker.checkEntries(entriesToCheck, mangas, settings, abortController.signal);
-        } catch (e) {
-            StaleSourceChecker.updateState((draft) => {
-                draft.lastError = getErrorMessage(e);
-            });
-        } finally {
-            StaleSourceChecker.abortController = null;
-
-            StaleSourceChecker.updateState((draft) => {
-                draft.isRunning = false;
-                draft.activeMangaTitle = null;
-                draft.lastRunAt = Date.now();
-            });
-        }
-    }
-
-    /**
-     * Checks a single entry right away, ignoring the candidate filters and the daily budget.
-     */
-    static async checkSingleEntry(
-        manga: StaleSourceCheckableManga,
-        mangas: StaleSourceCheckableManga[],
-        settings: MetadataStaleSourceSettings,
-    ): Promise<void> {
-        if (StaleSourceChecker.isRunning()) {
-            return;
-        }
-
-        const abortController = new AbortController();
-        StaleSourceChecker.abortController = abortController;
-
-        StaleSourceChecker.updateState((draft) => {
-            draft.isRunning = true;
-            draft.lastError = null;
-            draft.progress = { total: 1, completed: 0 };
-        });
-
-        try {
-            await StaleSourceChecker.checkEntries([manga], mangas, settings, abortController.signal);
-        } finally {
-            StaleSourceChecker.abortController = null;
-
-            StaleSourceChecker.updateState((draft) => {
-                draft.isRunning = false;
-                draft.activeMangaTitle = null;
-                draft.lastRunAt = Date.now();
-            });
-        }
+        await StaleSourceChecker.enqueue(entriesToCheck, mangas, settings);
     }
 
     static useIsRunning(): boolean {

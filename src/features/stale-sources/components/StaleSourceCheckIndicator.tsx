@@ -6,7 +6,7 @@
  * file, You can obtain one at https://mozilla.org/MPL/2.0/.
  */
 
-import { useState } from 'react';
+import { useLayoutEffect, useState } from 'react';
 import Chip from '@mui/material/Chip';
 import CircularProgress from '@mui/material/CircularProgress';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -29,6 +29,10 @@ export const StaleSourceCheckIndicator = () => {
     const progress = StaleSourceChecker.useProgress();
 
     const [isVisible, setIsVisible] = useState(true);
+
+    useLayoutEffect(() => {
+        setIsVisible(true);
+    }, [isRunning]);
 
     const staleSourcesPath = AppRoutes.settings.children.library.children.staleSources.path;
 

@@ -49,6 +49,7 @@ import { assertIsDefined } from '@/base/Asserts.ts';
 import { Confirmation } from '@/base/AppAwaitableComponent.ts';
 import { UrlUtil } from '@/lib/UrlUtil.ts';
 import { MigrationManager } from '@/features/migration/MigrationManager.ts';
+import { requestStaleSourceCheck } from '@/features/stale-sources/services/StaleSourceCheckRequest.ts';
 import uniq from 'lodash/fp/uniq';
 import { ReactRouter } from '@/lib/react-router/ReactRouter.ts';
 import { AppRoutes } from '@/base/AppRoute.constants.ts';
@@ -451,6 +452,15 @@ export class Mangas {
         );
     }
 
+    static async checkStaleSources(mangaIds: MangaIdInfo['id'][], disableConfirmation?: boolean): Promise<void> {
+        return Mangas.executeAction(
+            'check_stale_source',
+            mangaIds.length,
+            () => requestStaleSourceCheck(mangaIds),
+            disableConfirmation,
+        );
+    }
+
     static async migrate(mangaIds: MangaIdInfo['id'][]): Promise<void> {
         if (MigrationManager.isActive()) {
             makeToast(t`A migration is already in progress`, 'error');
@@ -557,6 +567,8 @@ export class Mangas {
             case 'migrate': {
                 return Mangas.migrate(mangaIds);
             }
+            case 'check_stale_source':
+                return Mangas.checkStaleSources(mangaIds, disableConfirmation);
             default:
                 throw new Error(`Mangas::performAction: unknown action "${action}"`);
         }

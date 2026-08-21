@@ -98,7 +98,8 @@ export type MangaAction =
     | 'remove_from_library'
     | 'change_categories'
     | 'migrate'
-    | 'track';
+    | 'track'
+    | 'check_stale_source';
 
 export type TMangaReader = MangaReaderFieldsFragment;
 

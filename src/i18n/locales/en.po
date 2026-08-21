@@ -243,6 +243,10 @@ msgid "{count, plural, one {Could not mark the chapter as unread} other {Could n
 msgstr "{count, plural, one {Could not mark the chapter as unread} other {Could not mark chapters as unread}}"
 
 #: src/features/manga/Manga.constants.ts
+msgid "{count, plural, one {Could not queue the entry for a source check} other {Could not queue the entries for a source check}}"
+msgstr "{count, plural, one {Could not queue the entry for a source check} other {Could not queue the entries for a source check}}"
+
+#: src/features/manga/Manga.constants.ts
 msgid "{count, plural, one {Could not remove manga from the library} other {Could not remove manga from the library}}"
 msgstr "{count, plural, one {Could not remove manga from the library} other {Could not remove manga from the library}}"
 
@@ -269,6 +273,14 @@ msgstr "{count, plural, one {Download canceled} other {# downloads canceled}}"
 #: src/features/chapter/components/actions/ChaptersDownloadActionMenuItems.tsx
 msgid "{count, plural, one {Next chapter} other {Next # chapters}}"
 msgstr "{count, plural, one {Next chapter} other {Next # chapters}}"
+
+#: src/features/manga/Manga.constants.ts
+msgid "{count, plural, one {One entry will be searched in every other source of your library} other {# entries will be searched in every other source of your library}}"
+msgstr "{count, plural, one {One entry will be searched in every other source of your library} other {# entries will be searched in every other source of your library}}"
+
+#: src/features/manga/Manga.constants.ts
+msgid "{count, plural, one {Queued entry for a source check} other {Queued # entries for a source check}}"
+msgstr "{count, plural, one {Queued entry for a source check} other {Queued # entries for a source check}}"
 
 #: src/features/manga/Manga.constants.ts
 msgid "{count, plural, one {Removed manga from the library} other {Removed # manga from the library}}"
@@ -959,6 +971,15 @@ msgstr "Check for stale sources"
 #: src/features/stale-sources/screens/StaleSources.tsx
 msgid "Check now"
 msgstr "Check now"
+
+#: src/features/manga/components/MangaToolbarMenu.tsx
+#: src/features/manga/Manga.constants.ts
+msgid "Check other sources"
+msgstr "Check other sources"
+
+#: src/features/manga/Manga.constants.ts
+msgid "Check other sources for selected"
+msgstr "Check other sources for selected"
 
 #: src/features/source/browse/screens/SourceMangas.tsx
 msgid "Check out"
@@ -3221,6 +3242,10 @@ msgstr "px"
 #: src/base/components/downloads/DownloadStateIndicatorCircular.tsx
 msgid "Queued"
 msgstr "Queued"
+
+#: src/features/manga/components/MangaToolbarMenu.tsx
+msgid "Queued for source check"
+msgstr "Queued for source check"
 
 #: src/features/reader/overlay/navigation/mobile/ReaderBottomBarMobile.tsx
 msgid "Quick settings"

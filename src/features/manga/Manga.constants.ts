@@ -42,6 +42,7 @@ export const MANGA_ACTION_TO_CONFIRMATION_REQUIRED: Record<
     change_categories: { always: false, bulkAction: false },
     migrate: { always: false, bulkAction: false },
     track: { always: false, bulkAction: false },
+    check_stale_source: { always: false, bulkAction: true },
 };
 
 export const MANGA_ACTION_TO_TRANSLATION: {
@@ -89,6 +90,15 @@ export const MANGA_ACTION_TO_TRANSLATION: {
         },
         success: msg`Tracked manga`,
         error: msg`Could not track manga`,
+    },
+    check_stale_source: {
+        action: {
+            single: msg`Check other sources`,
+            selected: msg`Check other sources for selected`,
+        },
+        confirmation: msg`{count, plural, one {One entry will be searched in every other source of your library} other {# entries will be searched in every other source of your library}}`,
+        success: msg`{count, plural, one {Queued entry for a source check} other {Queued # entries for a source check}}`,
+        error: msg`{count, plural, one {Could not queue the entry for a source check} other {Could not queue the entries for a source check}}`,
     },
 };
 

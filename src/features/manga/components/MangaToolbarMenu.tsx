@@ -37,6 +37,9 @@ import type {
 import ShareIcon from '@mui/icons-material/Share';
 import { defaultPromiseErrorHandler } from '@/lib/DefaultPromiseErrorHandler.ts';
 import { ShareGuard } from '@/base/components/guard/ShareGuard.tsx';
+import ManageSearchIcon from '@mui/icons-material/ManageSearch';
+import { Mangas } from '@/features/manga/services/Mangas.ts';
+import { StaleSourceChecker } from '@/features/stale-sources/services/StaleSourceChecker.ts';
 
 interface IProps {
     manga: MangaIdInfo & MangaInLibraryInfo & MangaSourceIdInfo & MangaTitleInfo & MangaUrlInfo;
@@ -50,6 +53,10 @@ export const MangaToolbarMenu = ({ manga, onRefresh, refreshing }: IProps) => {
     const theme = useTheme();
     const isLargeScreen = useMediaQuery(theme.breakpoints.up('sm'));
     const { settings } = useMetadataServerSettings();
+
+    // re-renders while a check is running so the entry's queued state stays accurate
+    StaleSourceChecker.useProgress();
+    const isQueuedForStaleSourceCheck = StaleSourceChecker.isQueued(manga.id);
 
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
@@ -204,6 +211,23 @@ export const MangaToolbarMenu = ({ manga, onRefresh, refreshing }: IProps) => {
                                     <SyncAltIcon fontSize="small" />
                                 </ListItemIcon>
                                 <ListItemText>{t`Migrate`}</ListItemText>
+                            </MenuItem>,
+                            <MenuItem
+                                key="check-stale-source"
+                                disabled={isQueuedForStaleSourceCheck}
+                                onClick={() => {
+                                    Mangas.performAction('check_stale_source', [manga.id], {}).catch(
+                                        defaultPromiseErrorHandler('MangaToolbarMenu::checkStaleSource'),
+                                    );
+                                    handleClose();
+                                }}
+                            >
+                                <ListItemIcon>
+                                    <ManageSearchIcon fontSize="small" />
+                                </ListItemIcon>
+                                <ListItemText>
+                                    {isQueuedForStaleSourceCheck ? t`Queued for source check` : t`Check other sources`}
+                                </ListItemText>
                             </MenuItem>,
                             <MenuItem
                                 key="categories"

@@ -15,6 +15,7 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import Label from '@mui/icons-material/Label';
 import { useMemo, useState } from 'react';
 import SyncAltIcon from '@mui/icons-material/SyncAlt';
+import ManageSearchIcon from '@mui/icons-material/ManageSearch';
 import SyncIcon from '@mui/icons-material/Sync';
 import Dialog from '@mui/material/Dialog';
 import { AwaitableComponent } from 'awaitable-component';
@@ -162,6 +163,11 @@ export const MangaActionMenuItems = ({
                 title={getMenuItemTitle('migrate', selectedMangas.length)}
                 Icon={SyncAltIcon}
                 onClick={() => performAction('migrate', selectedMangas)}
+            />
+            <MenuItem
+                title={getMenuItemTitle('check_stale_source', selectedMangas.length)}
+                Icon={ManageSearchIcon}
+                onClick={() => performAction('check_stale_source', selectedMangas)}
             />
             {isSingleMode && (
                 <MenuItem
